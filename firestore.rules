@@ -1,0 +1,20 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // -------------------------------------------------------------------------------- //
+    // 🛡️ ADMIN SDK EXCLUSIVE ARCHITECTURE                                              //
+    //                                                                                  //
+    // This application strictly uses the Firebase Admin SDK on the Next.js Server.     //
+    // The Admin SDK automatically bypasses ALL security rules here.                    //
+    //                                                                                  //
+    // Therefore, the safest rule for the frontend is to deny ALL read/write requests.  //
+    // This guarantees that even if a hacker finds your project ID, they absolutely     //
+    // cannot query or modify your database from a browser or script.                   //
+    // -------------------------------------------------------------------------------- //
+    
+    match /{document=**} {
+      allow read, write: if false; 
+    }
+  }
+}
