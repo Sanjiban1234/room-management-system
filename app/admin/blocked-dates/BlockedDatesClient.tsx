@@ -5,8 +5,10 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { addBlockedDate, deleteBlockedDate } from '@/app/actions/admin';
 import { Trash2, Calendar as CalendarIcon, Plus } from 'lucide-react';
+import { Calendar } from '@/components/ui/Calendar';
 
 export default function BlockedDatesClient({ initialBlockedDates }: { initialBlockedDates: any[] }) {
+  const [selectedDate, setSelectedDate] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -14,7 +16,7 @@ export default function BlockedDatesClient({ initialBlockedDates }: { initialBlo
     e.preventDefault();
     setLoading(true);
     const formData = new FormData(e.currentTarget);
-    const date = formData.get('date') as string;
+    const date = selectedDate;
     const reason = formData.get('reason') as string;
 
     if (!date) {
@@ -59,16 +61,26 @@ export default function BlockedDatesClient({ initialBlockedDates }: { initialBlo
       {showAddForm && (
         <div className="glass-panel animate-fade-in" style={{ padding: '2rem', marginBottom: '2rem' }}>
           <h2 className="text-lg font-bold" style={{ marginBottom: '1.5rem' }}>Block a New Date</h2>
-          <form onSubmit={handleAdd} className="flex gap-4 items-end flex-wrap">
-            <div className="input-group" style={{ minWidth: '200px', flex: 1 }}>
-              <label>Select Date</label>
-              <input type="date" name="date" required className="input" min={new Date().toISOString().split('T')[0]} />
-            </div>
-            <Input label="Reason (Optional)" name="reason" placeholder="Holiday, Event, etc." style={{ minWidth: '250px', flex: 2 }} />
-            <div style={{ paddingBottom: '1rem' }}>
-              <Button type="submit" disabled={loading}>
-                {loading ? 'Blocking...' : 'Confirm Block'}
-              </Button>
+          <form onSubmit={handleAdd} className="flex-col gap-6">
+            <div className="flex gap-4 items-start flex-wrap">
+              <div className="flex-col gap-3" style={{ flex: 1, minWidth: '300px' }}>
+                <label className="text-sm font-bold">Select Date</label>
+                <div className="flex justify-center">
+                  <Calendar 
+                    selectedDate={selectedDate} 
+                    onSelect={setSelectedDate} 
+                    minDate={new Date().toISOString().split('T')[0]} 
+                  />
+                </div>
+              </div>
+              <div style={{ flex: 1, minWidth: '250px' }}>
+                <Input label="Reason (Optional)" name="reason" placeholder="Holiday, Event, etc." />
+                <div style={{ marginTop: '2rem' }}>
+                  <Button type="submit" fullWidth disabled={loading || !selectedDate}>
+                    {loading ? 'Blocking...' : 'Confirm Block'}
+                  </Button>
+                </div>
+              </div>
             </div>
           </form>
         </div>

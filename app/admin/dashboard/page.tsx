@@ -1,5 +1,6 @@
 import { db } from '@/lib/firebase';
 import Link from 'next/link';
+import { hasBookingPassed } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -73,18 +74,38 @@ export default async function AdminDashboardPage() {
                   <th>Client Name</th>
                   <th>Faculty</th>
                   <th>Date</th>
-                  <th>Assigned Volunteer</th>
+                  <th>Time</th>
+                  <th>Volunteer</th>
+                  <th>Status</th>
                 </tr>
               </thead>
               <tbody>
-                {recentBookings.map((booking: any) => (
-                  <tr key={booking.id}>
-                    <td className="font-bold">{booking.clientName}</td>
-                    <td>{booking.faculty}</td>
-                    <td>{booking.date}</td>
-                    <td>{booking.volunteer ? booking.volunteer.name : 'Unknown'}</td>
-                  </tr>
-                ))}
+                {recentBookings.map((booking: any) => {
+                  const isCancelled = booking.status === 'cancelled';
+                  const isEnded = !isCancelled && hasBookingPassed(booking.date, booking.timeSlot);
+                  
+                  return (
+                    <tr key={booking.id} style={{ opacity: (isCancelled || isEnded) ? 0.6 : 1 }}>
+                      <td className="font-bold">{booking.clientName}</td>
+                      <td>{booking.faculty}</td>
+                      <td>{booking.date}</td>
+                      <td>{booking.timeSlot}</td>
+                      <td>{booking.volunteer ? booking.volunteer.name : 'Unknown'}</td>
+                      <td>
+                        <span style={{ 
+                          fontSize: '0.7rem', 
+                          padding: '0.2rem 0.5rem', 
+                          borderRadius: 'var(--radius-sm)',
+                          backgroundColor: isCancelled ? 'rgba(255,71,87,0.1)' : isEnded ? 'rgba(115,115,115,0.1)' : 'rgba(46,204,113,0.1)',
+                          color: isCancelled ? 'var(--error-color)' : isEnded ? 'var(--text-secondary)' : 'var(--success-color)',
+                          border: '1px solid currentColor'
+                        }}>
+                          {isCancelled ? 'Cancelled' : isEnded ? 'Session Ended' : 'Active'}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

@@ -3,6 +3,7 @@
 import { db } from '@/lib/firebase';
 import { revalidatePath } from 'next/cache';
 import { getSession } from '@/lib/auth';
+import bcrypt from 'bcrypt';
 
 async function ensureAdmin() {
   const session = await getSession();
@@ -112,12 +113,13 @@ export async function getAdmins() {
 
 export async function upsertAdmin(data: { id?: string, username: string, password?: string }) {
   await ensureAdmin();
-  const { id, username, password } = data;
+  const { id, password } = data;
+  const username = data.username.toLowerCase();
   
   if (id) {
     const updateData: any = { username, updatedAt: new Date().toISOString() };
     if (password) {
-      updateData.passwordHash = await import('bcrypt').then(b => b.hash(password, 10));
+      updateData.passwordHash = await bcrypt.hash(password, 10);
     }
     await db.collection('admins').doc(id).update(updateData);
   } else {
@@ -127,12 +129,12 @@ export async function upsertAdmin(data: { id?: string, username: string, passwor
       const existingId = querySnapshot.docs[0].id;
       const updateData: any = { username, updatedAt: new Date().toISOString() };
       if (password) {
-        updateData.passwordHash = await import('bcrypt').then(b => b.hash(password, 10));
+        updateData.passwordHash = await bcrypt.hash(password, 10);
       }
       await db.collection('admins').doc(existingId).update(updateData);
     } else {
       if (!password) throw new Error('Password is required for new admins');
-      const passwordHash = await import('bcrypt').then(b => b.hash(password, 10));
+      const passwordHash = await bcrypt.hash(password, 10);
       await db.collection('admins').doc().set({
         username,
         passwordHash,

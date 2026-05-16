@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/Input';
 import { Calendar } from '@/components/ui/Calendar';
 import { createBooking } from '@/app/actions/client';
 import { z } from 'zod';
+import { hasBookingPassed } from '@/lib/utils';
 
 const bookingSchema = z.object({
   clientName: z.string().min(2, "Name is too short"),
@@ -233,17 +234,41 @@ export default function BookingForm({
       </div>
 
       {selectedDate && selectedVolunteer && (
+        <div className="animate-fade-in" style={{ 
+          padding: '1rem', 
+          backgroundColor: 'var(--primary-light)', 
+          borderRadius: 'var(--radius-md)', 
+          border: '1px solid var(--border-color)',
+          marginBottom: '1rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '1rem'
+        }}>
+          <div style={{ fontSize: '1.5rem' }}>✅</div>
+          <div>
+            <p className="text-sm font-bold" style={{ color: 'var(--primary)' }}>Selection Summary</p>
+            <p className="text-xs text-muted">
+              {new Date(selectedDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} with {volunteers.find(v => v.id === selectedVolunteer)?.name}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {selectedDate && selectedVolunteer && (
         <div className="flex-col gap-3 animate-fade-in" style={{ marginTop: '0.5rem' }}>
-          <label className="text-sm font-bold" style={{ color: 'var(--text-muted)' }} id="time-slots-label">Available Time Slots</label>
+          <label className="text-sm font-bold" style={{ color: 'var(--text-main)' }} id="time-slots-label">Available Time Slots</label>
           <div className="flex gap-3 flex-wrap" role="radiogroup" aria-labelledby="time-slots-label">
             {timeSlots.map(slot => {
               const booked = isSlotBooked(slot);
+              const passed = hasBookingPassed(selectedDate, slot);
+              const disabled = booked || passed;
               const isSelected = selectedTimeSlot === slot;
+              
               return (
                 <button
                   key={slot}
                   type="button"
-                  disabled={booked}
+                  disabled={disabled}
                   aria-checked={isSelected}
                   role="radio"
                   onClick={() => setSelectedTimeSlot(slot)}
@@ -252,15 +277,16 @@ export default function BookingForm({
                     flex: 1, 
                     minWidth: '130px',
                     padding: '0.8rem',
-                    opacity: booked ? 0.4 : 1,
-                    cursor: booked ? 'not-allowed' : 'pointer',
+                    opacity: disabled ? 0.4 : 1,
+                    cursor: disabled ? 'not-allowed' : 'pointer',
                     position: 'relative',
                     overflow: 'hidden',
                     border: isSelected ? '1px solid var(--primary-color)' : '1px solid var(--border-color)'
                   }}
                 >
-                  <span style={{ textDecoration: booked ? 'line-through' : 'none' }}>{slot}</span>
+                  <span style={{ textDecoration: disabled ? 'line-through' : 'none' }}>{slot}</span>
                   {booked && <span style={{ fontSize: '0.65rem', display: 'block', marginTop: '2px', opacity: 0.8 }}>(Fully Booked)</span>}
+                  {passed && !booked && <span style={{ fontSize: '0.65rem', display: 'block', marginTop: '2px', opacity: 0.8 }}>(Time Passed)</span>}
                   {isSelected && <div style={{ position: 'absolute', top: 0, right: 0, width: '0', height: '0', borderStyle: 'solid', borderWidth: '0 20px 20px 0', borderColor: 'transparent var(--primary-color) transparent transparent' }}></div>}
                 </button>
               );

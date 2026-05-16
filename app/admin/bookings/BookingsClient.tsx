@@ -6,8 +6,24 @@ import { Input } from '@/components/ui/Input';
 import { exportToExcel } from '@/lib/excel';
 import { cancelBooking } from '@/app/actions/admin';
 
-function StatusBadge({ status }: { status: string }) {
+import { hasBookingPassed } from '@/lib/utils';
+
+function StatusBadge({ status, date, timeSlot }: { status: string, date: string, timeSlot: string }) {
   const isCancelled = status === 'cancelled';
+  const isEnded = !isCancelled && hasBookingPassed(date, timeSlot);
+  
+  let label = isCancelled ? 'Cancelled' : 'Active';
+  let bgColor = isCancelled ? 'rgba(255,71,87,0.1)' : 'rgba(46,204,113,0.1)';
+  let color = isCancelled ? 'var(--error-color)' : 'var(--success-color)';
+  let borderColor = isCancelled ? 'rgba(255,71,87,0.25)' : 'rgba(46,204,113,0.25)';
+
+  if (isEnded) {
+    label = 'Session Ended';
+    bgColor = 'rgba(115, 115, 115, 0.1)';
+    color = 'var(--text-secondary)';
+    borderColor = 'rgba(115, 115, 115, 0.25)';
+  }
+
   return (
     <span style={{
       display: 'inline-flex',
@@ -17,13 +33,13 @@ function StatusBadge({ status }: { status: string }) {
       borderRadius: '999px',
       fontSize: '0.75rem',
       fontWeight: '600',
-      backgroundColor: isCancelled ? 'rgba(255,71,87,0.1)' : 'rgba(46,204,113,0.1)',
-      color: isCancelled ? 'var(--error-color)' : 'var(--success-color)',
-      border: `1px solid ${isCancelled ? 'rgba(255,71,87,0.25)' : 'rgba(46,204,113,0.25)'}`,
+      backgroundColor: bgColor,
+      color: color,
+      border: `1px solid ${borderColor}`,
       whiteSpace: 'nowrap',
     }}>
       <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'currentColor', display: 'inline-block' }} />
-      {isCancelled ? 'Cancelled' : 'Active'}
+      {label}
     </span>
   );
 }
@@ -117,9 +133,9 @@ export default function BookingsClient({ initialBookings }: { initialBookings: a
                     <td>{booking.date}</td>
                     <td>{booking.timeSlot}</td>
                     <td>{booking.volunteer?.name || 'None'}</td>
-                    <td><StatusBadge status={booking.status || 'active'} /></td>
+                    <td><StatusBadge status={booking.status || 'active'} date={booking.date} timeSlot={booking.timeSlot} /></td>
                     <td>
-                      {(booking.status || 'active') === 'active' ? (
+                      {(booking.status || 'active') === 'active' && !hasBookingPassed(booking.date, booking.timeSlot) ? (
                         <button
                           onClick={() => handleCancel(booking.id)}
                           disabled={cancellingId === booking.id}

@@ -180,11 +180,12 @@ export const Calendar: React.FC<CalendarProps> = ({
           padding: 1.5rem;
           width: 100%;
           max-width: 320px;
-          background: rgba(23, 25, 35, 0.4);
+          background: rgba(255, 255, 255, 0.4);
+          backdrop-filter: blur(8px);
           outline: none;
         }
         .calendar-container:focus-within {
-          box-shadow: 0 0 0 2px var(--primary-color);
+          box-shadow: 0 0 0 2px var(--primary);
         }
         .calendar-header {
           display: flex;
@@ -193,7 +194,7 @@ export const Calendar: React.FC<CalendarProps> = ({
           margin-bottom: 1.5rem;
         }
         .calendar-nav-btn {
-          background: rgba(255, 255, 255, 0.05);
+          background: #ffffff;
           border: 1px solid var(--border-color);
           border-radius: 8px;
           color: var(--text-main);
@@ -206,7 +207,7 @@ export const Calendar: React.FC<CalendarProps> = ({
           transition: all 0.2s;
         }
         .calendar-nav-btn:hover {
-          background: rgba(255, 255, 255, 0.1);
+          background: #f4f4f5;
         }
         .calendar-month-year {
           font-weight: 700;
@@ -222,7 +223,7 @@ export const Calendar: React.FC<CalendarProps> = ({
           text-align: center;
           font-size: 0.75rem;
           font-weight: 600;
-          color: var(--text-muted);
+          color: var(--text-secondary);
           padding-bottom: 0.5rem;
         }
         .calendar-day {
@@ -230,34 +231,53 @@ export const Calendar: React.FC<CalendarProps> = ({
           display: flex;
           align-items: center;
           justify-content: center;
-          border-radius: 8px;
+          border-radius: 50%;
           font-size: 0.85rem;
           background: transparent;
           border: 2px solid transparent;
           color: var(--text-main);
           cursor: pointer;
-          transition: all 0.2s;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
           position: relative;
         }
         .calendar-day:not(.disabled):hover {
-          background: rgba(var(--primary-color-rgb), 0.2);
-          color: var(--primary-color);
+          background: var(--primary-light);
+          color: var(--primary);
+          transform: scale(1.1);
         }
         .calendar-day.selected {
-          background: var(--primary-color);
+          background: var(--primary);
           color: white;
           font-weight: bold;
-          box-shadow: 0 0 15px rgba(var(--primary-color-rgb), 0.4);
+          transform: scale(1.15);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          z-index: 1;
+        }
+        .calendar-day.selected::after {
+          content: '';
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          border: 2px solid var(--primary);
+          animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+        @keyframes ping {
+          75%, 100% {
+            transform: scale(1.5);
+            opacity: 0;
+          }
         }
         .calendar-day.focused {
-          border-color: var(--primary-color);
+          border-color: var(--primary);
         }
         .calendar-day.disabled {
-          color: rgba(255, 255, 255, 0.1);
+          color: #d1d5db;
           cursor: not-allowed;
         }
         .calendar-day.disabled:not(.empty) {
           text-decoration: line-through;
+          opacity: 0.5;
         }
         .blocked-indicator {
           position: absolute;
@@ -270,7 +290,20 @@ export const Calendar: React.FC<CalendarProps> = ({
         .calendar-day.empty {
           cursor: default;
         }
+        .selected-date-info {
+          margin-top: 1.5rem;
+          text-align: center;
+          font-size: 0.85rem;
+          color: var(--primary);
+          font-weight: 600;
+          animation: fadeIn 0.3s ease-out;
+        }
       `}</style>
+      {selectedDate && (
+        <div className="selected-date-info">
+          Selected: {new Date(selectedDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+        </div>
+      )}
     </div>
   );
 };

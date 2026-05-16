@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { getBookingsByPhone, cancelBookingByPhone } from '@/app/actions/client';
+import { hasBookingPassed } from '@/lib/utils';
 
 type Booking = {
   id: string;
@@ -18,9 +19,9 @@ type Booking = {
   createdAt: string;
 };
 
-function StatusBadge({ status, isEnded }: { status: string; isEnded?: boolean }) {
+function StatusBadge({ status, date, timeSlot }: { status: string; date: string; timeSlot: string }) {
   const isCancelled = status === 'cancelled';
-  const showEnded = status === 'active' && isEnded;
+  const isEnded = !isCancelled && hasBookingPassed(date, timeSlot);
   
   let bgColor = 'rgba(46,204,113,0.1)';
   let color = 'var(--success-color)';
@@ -32,10 +33,10 @@ function StatusBadge({ status, isEnded }: { status: string; isEnded?: boolean })
     color = 'var(--error-color)';
     borderColor = 'rgba(255,71,87,0.25)';
     label = 'Cancelled';
-  } else if (showEnded) {
-    bgColor = 'rgba(149,165,166,0.1)';
-    color = '#7f8c8d';
-    borderColor = 'rgba(149,165,166,0.25)';
+  } else if (isEnded) {
+    bgColor = 'rgba(115, 115, 115, 0.1)';
+    color = 'var(--text-secondary)';
+    borderColor = 'rgba(115, 115, 115, 0.25)';
     label = 'Session Ended';
   }
 
@@ -97,34 +98,6 @@ export default function BookingLookup() {
   today.setHours(0, 0, 0, 0);
   const isFuture = (dateStr: string) => new Date(dateStr) >= today;
 
-  const checkSessionEnded = (dateStr: string, timeSlotStr: string) => {
-    const now = new Date();
-    const [year, month, day] = dateStr.split('-').map(Number);
-    const localSlotDate = new Date(year, month - 1, day);
-
-    const parts = timeSlotStr.split('-');
-    if (parts.length === 2) {
-      let endTime = parts[1].trim();
-      let isPM = endTime.toLowerCase().includes('pm');
-      let isAM = endTime.toLowerCase().includes('am');
-      
-      endTime = endTime.replace(/[a-z]/gi, '').trim();
-      let [hours, minutes] = endTime.split(':').map(Number);
-      
-      if (isPM && hours < 12) hours += 12;
-      if (isAM && hours === 12) hours = 0;
-      
-      if (!isPM && !isAM && hours < 8 && hours > 0) {
-         hours += 12;
-      }
-
-      localSlotDate.setHours(hours, minutes, 0, 0);
-      return now > localSlotDate;
-    }
-    
-    localSlotDate.setHours(23, 59, 59, 999);
-    return now > localSlotDate;
-  };
 
   return (
     <div className="glass-panel animate-fade-in" style={{ padding: '2.5rem', width: '100%', maxWidth: '680px' }}>
@@ -192,7 +165,7 @@ export default function BookingLookup() {
                       {booking.faculty} · Batch {booking.batch}
                     </p>
                   </div>
-                  <StatusBadge status={booking.status} isEnded={checkSessionEnded(booking.date, booking.timeSlot)} />
+                  <StatusBadge status={booking.status} date={booking.date} timeSlot={booking.timeSlot} />
                 </div>
 
                 <div style={{
@@ -220,7 +193,7 @@ export default function BookingLookup() {
                   <p style={{ fontSize: '0.7rem', fontFamily: 'monospace', color: 'var(--text-muted)', opacity: 0.6 }}>
                     ID: {booking.id}
                   </p>
-                  {booking.status === 'active' && isFuture(booking.date) && !checkSessionEnded(booking.date, booking.timeSlot) && (
+                  {booking.status === 'active' && isFuture(booking.date) && !hasBookingPassed(booking.date, booking.timeSlot) && (
                     <button
                       onClick={() => handleCancel(booking.id)}
                       disabled={cancellingId === booking.id}

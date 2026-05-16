@@ -9,20 +9,31 @@ export default function AdminsClient({ admins }: { admins: any[] }) {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingAdmin, setEditingAdmin] = useState<any>(null);
 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setLoading(true);
+    setError(null);
+
     const formData = new FormData(e.currentTarget);
     const username = formData.get('username') as string;
     const password = formData.get('password') as string;
 
-    await upsertAdmin({
-      id: editingAdmin?.id,
-      username,
-      password: password || undefined
-    });
-
-    setShowAddForm(false);
-    setEditingAdmin(null);
+    try {
+      await upsertAdmin({
+        id: editingAdmin?.id,
+        username,
+        password: password || undefined
+      });
+      setShowAddForm(false);
+      setEditingAdmin(null);
+    } catch (err: any) {
+      setError(err.message || 'Failed to save admin account');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -42,6 +53,13 @@ export default function AdminsClient({ admins }: { admins: any[] }) {
           <h3 className="text-lg font-bold" style={{ marginBottom: '1rem' }}>
             {editingAdmin ? `Edit Admin: ${editingAdmin.username}` : 'Add New Admin'}
           </h3>
+          
+          {error && (
+            <div style={{ padding: '0.75rem', marginBottom: '1rem', borderRadius: 'var(--radius-sm)', backgroundColor: 'rgba(255, 71, 87, 0.1)', color: 'var(--error-color)', border: '1px solid rgba(255, 71, 87, 0.3)', fontSize: '0.85rem' }}>
+              {error}
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="flex-col gap-4">
             <div className="flex gap-4">
               <Input 
@@ -63,8 +81,11 @@ export default function AdminsClient({ admins }: { admins: any[] }) {
               <Button type="button" variant="secondary" onClick={() => {
                 setShowAddForm(false);
                 setEditingAdmin(null);
+                setError(null);
               }}>Cancel</Button>
-              <Button type="submit">Save Account</Button>
+              <Button type="submit" disabled={loading}>
+                {loading ? 'Saving...' : 'Save Account'}
+              </Button>
             </div>
           </form>
         </div>
