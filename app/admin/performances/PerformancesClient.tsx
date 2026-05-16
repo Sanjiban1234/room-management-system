@@ -4,6 +4,9 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { deleteAllPerformanceRegistrations } from '@/app/actions/admin';
 import * as XLSX from 'xlsx';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+
+const COLORS = ['#171717', '#6366f1', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6'];
 
 export default function PerformancesClient({ initialRegistrations }: { initialRegistrations: any[] }) {
   const [registrations, setRegistrations] = useState(initialRegistrations);
@@ -57,6 +60,16 @@ export default function PerformancesClient({ initialRegistrations }: { initialRe
     return acc;
   }, { Solo: 0, Group: 0 } as Record<string, number>);
 
+  const pieData = [
+    { name: 'Solo', value: soloGroupCounts.Solo },
+    { name: 'Group', value: soloGroupCounts.Group }
+  ];
+
+  const barData = Object.entries(typeCounts).map(([name, count]) => ({
+    name,
+    count: count as number
+  }));
+
   return (
     <div className="flex-col gap-6">
       <div className="flex justify-between items-center bg-panel" style={{ padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
@@ -72,32 +85,43 @@ export default function PerformancesClient({ initialRegistrations }: { initialRe
       {/* Visual Representations */}
       {registrations.length > 0 && (
         <div className="flex gap-4 flex-wrap">
-          <div className="glass-panel" style={{ padding: '1.5rem', flex: 1, minWidth: '300px' }}>
+          <div className="glass-panel" style={{ padding: '1.5rem', flex: 1, minWidth: '350px', height: '350px' }}>
             <h3 className="text-lg font-bold" style={{ marginBottom: '1rem' }}>Performance Types</h3>
-            <div className="flex-col gap-2">
-              {Object.entries(typeCounts).map(([type, count]) => (
-                <div key={type} className="flex justify-between items-center">
-                  <span>{type}</span>
-                  <div className="flex items-center gap-2">
-                    <div style={{ height: '8px', backgroundColor: 'var(--primary-color)', borderRadius: '4px', width: `${((count as number) / registrations.length) * 100}px`, minWidth: '10px' }} />
-                    <span className="font-bold text-sm">{count as number}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={barData} margin={{ top: 5, right: 30, left: 20, bottom: 25 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e5e5" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} angle={-45} textAnchor="end" />
+                <YAxis allowDecimals={false} axisLine={false} tickLine={false} />
+                <Tooltip cursor={{ fill: 'rgba(0,0,0,0.05)' }} contentStyle={{ borderRadius: '8px', border: '1px solid #e5e5e5', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }} />
+                <Bar dataKey="count" fill="#171717" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
           
-          <div className="glass-panel" style={{ padding: '1.5rem', flex: 1, minWidth: '300px' }}>
+          <div className="glass-panel" style={{ padding: '1.5rem', flex: 1, minWidth: '350px', height: '350px', display: 'flex', flexDirection: 'column' }}>
             <h3 className="text-lg font-bold" style={{ marginBottom: '1rem' }}>Solo vs Group</h3>
-            <div className="flex-col gap-4">
-              <div className="flex justify-between items-center">
-                <span>Solo ({soloGroupCounts.Solo})</span>
-                <div style={{ height: '20px', backgroundColor: 'var(--accent-color)', borderRadius: '4px', width: `${(soloGroupCounts.Solo / Math.max(registrations.length, 1)) * 100}%` }} />
-              </div>
-              <div className="flex justify-between items-center">
-                <span>Group ({soloGroupCounts.Group})</span>
-                <div style={{ height: '20px', backgroundColor: 'var(--success-color)', borderRadius: '4px', width: `${(soloGroupCounts.Group / Math.max(registrations.length, 1)) * 100}%` }} />
-              </div>
+            <div style={{ flex: 1 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={pieData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    paddingAngle={5}
+                    dataKey="value"
+                    label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
+                  >
+                    {pieData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e5e5e5' }} />
+                  <Legend verticalAlign="bottom" height={36} />
+                </PieChart>
+              </ResponsiveContainer>
             </div>
           </div>
         </div>

@@ -11,9 +11,17 @@ export default function VolunteersClient({ initialVolunteers }: { initialVolunte
   const [showAddForm, setShowAddForm] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const filteredVolunteers = initialVolunteers.filter(v => 
-    v.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const [sortOption, setSortOption] = useState<'name' | 'batch'>('name');
+
+  const filteredVolunteers = initialVolunteers
+    .filter(v => v.name.toLowerCase().includes(search.toLowerCase()))
+    .sort((a, b) => {
+      if (sortOption === 'name') {
+        return a.name.localeCompare(b.name);
+      } else {
+        return String(a.batch).localeCompare(String(b.batch));
+      }
+    });
 
   const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -108,13 +116,22 @@ export default function VolunteersClient({ initialVolunteers }: { initialVolunte
         </div>
       )}
 
-      <div className="glass-panel" style={{ padding: '1.5rem', marginBottom: '2rem' }}>
-        <Input 
-          label="Search by Volunteer Name" 
-          placeholder="Type name here..." 
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+      <div className="glass-panel flex-col lg:flex-row gap-4" style={{ padding: '1.5rem', marginBottom: '2rem', display: 'flex', alignItems: 'center' }}>
+        <div style={{ flex: 2, width: '100%' }}>
+          <Input 
+            label="Search by Volunteer Name" 
+            placeholder="Type name here..." 
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        <div className="input-group" style={{ flex: 1, width: '100%', marginBottom: '0' }}>
+          <label>Sort By</label>
+          <select className="select" value={sortOption} onChange={(e) => setSortOption(e.target.value as 'name' | 'batch')}>
+            <option value="name">Name (A-Z)</option>
+            <option value="batch">Batch (Ascending)</option>
+          </select>
+        </div>
       </div>
 
       <div className="glass-panel" style={{ padding: '0' }}>
