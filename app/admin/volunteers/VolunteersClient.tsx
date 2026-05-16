@@ -12,8 +12,12 @@ export default function VolunteersClient({ initialVolunteers }: { initialVolunte
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [sortOption, setSortOption] = useState<'name' | 'batch'>('name');
+  const [selectedBatch, setSelectedBatch] = useState<string>('all');
+
+  const uniqueBatches = Array.from(new Set(initialVolunteers.map(v => v.batch))).sort((a, b) => String(a).localeCompare(String(b), undefined, { numeric: true }));
 
   const filteredVolunteers = initialVolunteers
+    .filter(v => selectedBatch === 'all' || v.batch === selectedBatch)
     .filter(v => v.name.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => {
       if (sortOption === 'name') {
@@ -124,6 +128,15 @@ export default function VolunteersClient({ initialVolunteers }: { initialVolunte
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
+        </div>
+        <div className="input-group" style={{ flex: 1, width: '100%', marginBottom: '0' }}>
+          <label>Filter by Batch</label>
+          <select className="select" value={selectedBatch} onChange={(e) => setSelectedBatch(e.target.value)}>
+            <option value="all">All Batches</option>
+            {uniqueBatches.map(batch => (
+              <option key={batch as string} value={batch as string}>{batch}</option>
+            ))}
+          </select>
         </div>
         <div className="input-group" style={{ flex: 1, width: '100%', marginBottom: '0' }}>
           <label>Sort By</label>
