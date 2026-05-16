@@ -19,7 +19,7 @@ export default function VolunteersClient({ initialVolunteers }: { initialVolunte
       if (sortOption === 'name') {
         return a.name.localeCompare(b.name);
       } else {
-        return String(a.batch).localeCompare(String(b.batch));
+        return String(a.batch).localeCompare(String(b.batch), undefined, { numeric: true });
       }
     });
 
