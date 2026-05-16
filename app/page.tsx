@@ -37,17 +37,14 @@ export default async function Home() {
       <main className="flex-col gap-12" style={{ flex: 1, paddingBottom: '4rem' }}>
 
         {/* Hero Section with Club Image */}
-        <div className="glass-effect flex-col lg:flex-row overflow-hidden hero-container" style={{ padding: '0', minHeight: '400px', marginBottom: '2rem', position: 'relative' }}>
+        <div className="flex-col lg:flex-row hero-container" style={{ minHeight: '400px', marginBottom: '2rem', position: 'relative' }}>
           
-          {/* Mobile Image (Glassmorphed specifically on mobile with partial fade) */}
-          <div className="hero-image-wrapper" style={{ flex: 1.2, position: 'relative', overflow: 'hidden' }}>
+          <div className="hero-image-wrapper" style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
             <img
               src="/hero-image.jpg"
               alt="Music Club"
               style={{ width: '100%', height: '100%', objectFit: 'cover', minHeight: '250px' }}
             />
-            {/* The gradient overlay transitions the image smoothly into the content below/beside it */}
-            <div className="hero-fade" style={{ position: 'absolute', inset: 0 }}></div>
           </div>
 
           <div style={{ flex: 1, padding: '3rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', zIndex: 2 }}>

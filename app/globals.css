@@ -101,9 +101,22 @@ h1, h2, h3, h4, h5, h6 {
   border-color: #d4d4d8;
 }
 
-/* Specific elements cleanup */
-.hero-image-wrapper, .hero-fade { display: none; }
-.hero-container { border: 1px solid var(--border-color); box-shadow: var(--shadow-base); padding: 3rem !important; background: var(--card-bg) !important; border-radius: var(--radius-lg); }
+/* Specific elements styling */
+.hero-image-wrapper { 
+  display: block; 
+}
+.hero-fade {
+  display: none;
+}
+.hero-container { 
+  border: 1px solid var(--border-color); 
+  box-shadow: var(--shadow-base); 
+  background: var(--card-bg) !important; 
+  border-radius: var(--radius-lg); 
+  padding: 0 !important;
+  display: flex;
+  overflow: hidden;
+}
 
 /* Forms */
 .input-group {
@@ -308,3 +321,9 @@ a:hover {
 .max-w-lg { max-width: 32rem; }
 .block { display: block; }
 .inline-block { display: inline-block; }
+
+@media (min-width: 1024px) {
+  .lg\:flex-row {
+    flex-direction: row;
+  }
+}
