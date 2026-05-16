@@ -17,12 +17,6 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <body className="antialiased font-inter">
-        <a 
-          href="#main-content" 
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-50 p-3 bg-primary text-white rounded-md font-bold"
-        >
-          Skip to main content
-        </a>
         <div id="main-content">
           {children}
         </div>

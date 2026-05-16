@@ -31,7 +31,6 @@ export default async function Home() {
           <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'var(--primary-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold' }}>S</div>
           <h2 className="text-xl font-bold" style={{ color: 'var(--primary-color)', letterSpacing: '-0.5px' }}>Slot System</h2>
         </div>
-        <Link href="/admin/login" className="btn btn-secondary" style={{ fontSize: '0.85rem', padding: '0.5rem 1.25rem' }}>Admin Portal</Link>
       </header>
 
       <main className="flex-col gap-12" style={{ flex: 1, paddingBottom: '4rem' }}>
