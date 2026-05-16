@@ -90,7 +90,7 @@ export default function SettingsClient({
   return (
     <div className="flex-col gap-8">
       {/* Call for Volunteers Toggle */}
-      <div className="flex justify-between items-center bg-opacity-20 bg-black" style={{ padding: '1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+      <div className="responsive-header bg-opacity-20 bg-black" style={{ padding: '1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
         <div>
           <h3 className="text-lg font-bold">Call for Volunteers</h3>
           <p className="text-sm text-muted">When turned on, the client portal switches to a volunteer registration module.</p>
@@ -99,13 +99,14 @@ export default function SettingsClient({
           onClick={handleToggle} 
           variant={enabled ? 'secondary' : 'primary'}
           disabled={isPending}
+          className="w-full sm:w-auto"
         >
           {enabled ? 'Turn Off' : 'Turn On'}
         </Button>
       </div>
 
       {/* Call for Performance Toggle */}
-      <div className="flex justify-between items-center bg-opacity-20 bg-black" style={{ padding: '1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', marginTop: '1rem' }}>
+      <div className="responsive-header bg-opacity-20 bg-black" style={{ padding: '1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', marginTop: '1rem' }}>
         <div>
           <h3 className="text-lg font-bold">Call for Performance</h3>
           <p className="text-sm text-muted">When turned on, a button for performance registration is available on the client portal.</p>
@@ -114,6 +115,7 @@ export default function SettingsClient({
           onClick={handlePerformanceToggle} 
           variant={performanceEnabled ? 'secondary' : 'primary'}
           disabled={isPending}
+          className="w-full sm:w-auto"
         >
           {performanceEnabled ? 'Turn Off' : 'Turn On'}
         </Button>
@@ -149,6 +151,7 @@ export default function SettingsClient({
           <Button 
             onClick={handleSaveSettings} 
             disabled={isSaving}
+            className="w-full sm:w-auto"
           >
             {isSaving ? 'Saving...' : 'Save Details'}
           </Button>
@@ -207,8 +210,8 @@ export default function SettingsClient({
         </div>
 
         {/* Add new slot */}
-        <div className="flex gap-3 items-end" style={{ marginTop: '0.25rem' }}>
-          <div className="flex-col gap-1" style={{ flex: 1 }}>
+        <div className="flex flex-col sm:flex-row gap-3 items-end" style={{ marginTop: '0.25rem' }}>
+          <div className="flex-col gap-1 w-full" style={{ flex: 1 }}>
             <label className="text-sm font-medium">Add New Slot</label>
             <input
               type="text"
@@ -220,13 +223,13 @@ export default function SettingsClient({
             />
             {slotError && <p className="text-xs" style={{ color: 'var(--error-color)', marginTop: '0.2rem' }}>⚠ {slotError}</p>}
           </div>
-          <Button onClick={handleAddSlot} variant="secondary" style={{ whiteSpace: 'nowrap' }}>
+          <Button onClick={handleAddSlot} variant="secondary" className="w-full sm:w-auto" style={{ whiteSpace: 'nowrap' }}>
             + Add Slot
           </Button>
         </div>
 
         <div className="flex justify-end" style={{ marginTop: '0.5rem' }}>
-          <Button onClick={handleSaveSlots} disabled={isSavingSlots}>
+          <Button onClick={handleSaveSlots} disabled={isSavingSlots} className="w-full sm:w-auto">
             {isSavingSlots ? 'Saving...' : 'Save Time Slots'}
           </Button>
         </div>

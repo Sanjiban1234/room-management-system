@@ -61,7 +61,7 @@ export default function AdminsClient({ admins }: { admins: any[] }) {
           )}
 
           <form onSubmit={handleSubmit} className="flex-col gap-4">
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-4">
               <Input 
                 label="Username" 
                 name="username" 

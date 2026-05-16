@@ -88,7 +88,7 @@ export default function BookingsClient({ initialBookings }: { initialBookings: a
 
   return (
     <div className="flex-col gap-6">
-      <div className="flex justify-between items-center" style={{ marginBottom: '1rem' }}>
+      <div className="responsive-header">
         <h1 className="text-2xl font-bold">Manage Bookings</h1>
         <Button onClick={handleExport} variant="secondary">Export to Excel</Button>
       </div>

@@ -39,22 +39,22 @@ export default async function AdminDashboardPage() {
     <div className="flex-col gap-6">
       <h1 className="text-2xl font-bold">Dashboard</h1>
       
-      <div className="flex gap-4" style={{ marginBottom: '2rem' }}>
-        <div className="glass-panel" style={{ padding: '1.5rem', flex: 1 }}>
+      <div className="flex flex-wrap gap-4" style={{ marginBottom: '2rem' }}>
+        <div className="glass-panel" style={{ padding: '1.5rem', flex: '1 1 200px' }}>
           <h3 className="text-muted text-sm">Total Bookings</h3>
-          <p className="text-2xl font-bold" style={{ color: 'var(--primary-color)', marginTop: '0.5rem' }}>{totalBookings}</p>
+          <p className="text-2xl font-bold" style={{ color: 'var(--primary)', marginTop: '0.5rem' }}>{totalBookings}</p>
         </div>
-        <div className="glass-panel" style={{ padding: '1.5rem', flex: 1 }}>
+        <div className="glass-panel" style={{ padding: '1.5rem', flex: '1 1 200px' }}>
           <h3 className="text-muted text-sm">Total Volunteers</h3>
           <p className="text-2xl font-bold" style={{ color: 'var(--accent-color)', marginTop: '0.5rem' }}>{totalVolunteers}</p>
         </div>
-        <div className="glass-panel" style={{ padding: '1.5rem', flex: 1 }}>
+        <div className="glass-panel" style={{ padding: '1.5rem', flex: '1 1 200px' }}>
           <h3 className="text-muted text-sm">Volunteer Applicants</h3>
           <p className="text-2xl font-bold" style={{ color: 'var(--success-color)', marginTop: '0.5rem' }}>{totalVolunteerApps}</p>
         </div>
-        <div className="glass-panel" style={{ padding: '1.5rem', flex: 1 }}>
+        <div className="glass-panel" style={{ padding: '1.5rem', flex: '1 1 200px' }}>
           <h3 className="text-muted text-sm">Performance Registrations</h3>
-          <p className="text-2xl font-bold" style={{ color: 'var(--primary-color)', marginTop: '0.5rem' }}>{totalPerformances}</p>
+          <p className="text-2xl font-bold" style={{ color: 'var(--primary)', marginTop: '0.5rem' }}>{totalPerformances}</p>
         </div>
       </div>
 

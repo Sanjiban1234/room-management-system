@@ -75,7 +75,7 @@ export default function VolunteersClient({ initialVolunteers }: { initialVolunte
 
   return (
     <div className="flex-col gap-6">
-      <div className="flex justify-between items-center" style={{ marginBottom: '1rem' }}>
+      <div className="responsive-header">
         <h1 className="text-2xl font-bold">Manage Volunteers</h1>
         <div className="flex gap-2">
           <input 

@@ -72,7 +72,7 @@ export default function PerformancesClient({ initialRegistrations }: { initialRe
 
   return (
     <div className="flex-col gap-6">
-      <div className="flex justify-between items-center bg-panel" style={{ padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+      <div className="responsive-header bg-panel" style={{ padding: '1.25rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', margin: 0 }}>
         <p>Total Registrations: <strong>{registrations.length}</strong></p>
         <div className="flex gap-2">
           <Button variant="secondary" onClick={handleExport} disabled={registrations.length === 0}>Export CSV/Excel</Button>

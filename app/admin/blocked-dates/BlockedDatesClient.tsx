@@ -48,7 +48,7 @@ export default function BlockedDatesClient({ initialBlockedDates }: { initialBlo
 
   return (
     <div className="flex-col gap-6">
-      <div className="flex justify-between items-center">
+      <div className="responsive-header">
         <div>
           <h1 className="text-2xl font-bold">Blocked Dates</h1>
           <p className="text-muted text-sm">Manage dates that are unavailable for booking globally.</p>
