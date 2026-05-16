@@ -26,12 +26,7 @@ export default async function Home() {
 
   return (
     <div className="container animate-fade-in" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', padding: '1rem' }}>
-      <header className="flex justify-between items-center" style={{ padding: '1.5rem 0', marginBottom: '2rem' }}>
-        <div className="flex gap-3 items-center">
-          <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'var(--primary-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold' }}>S</div>
-          <h2 className="text-xl font-bold" style={{ color: 'var(--primary-color)', letterSpacing: '-0.5px' }}>Slot System</h2>
-        </div>
-      </header>
+
 
       <main className="flex-col gap-12" style={{ flex: 1, paddingBottom: '4rem' }}>
 
