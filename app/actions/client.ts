@@ -215,3 +215,42 @@ export async function createVolunteerApplication(data: any) {
     return { success: false, error: "Submission failed. Please try again later." };
   }
 }
+
+const performanceSchema = z.object({
+  name: z.string().min(2, "Name is too short"),
+  phone: z.string().min(10, "Invalid phone number"),
+  collegeMail: z.string().email("Invalid email address"),
+  performanceType: z.enum(["Dance", "Singing", "Poem", "Standup", "Drama", "Other"]),
+  otherPerformanceType: z.string().optional(),
+  type: z.enum(["Solo", "Group"]),
+  groupMembers: z.array(z.object({
+    name: z.string().min(2, "Name is required"),
+    phone: z.string().min(10, "Phone is required")
+  })).optional()
+});
+
+export async function createPerformanceRegistration(data: any) {
+  try {
+    const validated = performanceSchema.safeParse(data);
+    if (!validated.success) {
+      return { success: false, error: validated.error.issues[0].message };
+    }
+
+    if (validated.data.performanceType === "Other" && !validated.data.otherPerformanceType) {
+      return { success: false, error: "Please specify your performance type." };
+    }
+
+    if (validated.data.type === "Group" && (!validated.data.groupMembers || validated.data.groupMembers.length === 0)) {
+       return { success: false, error: "Please add at least one group member." };
+    }
+
+    await db.collection('performanceRegistrations').doc().set({
+      ...validated.data,
+      createdAt: new Date().toISOString()
+    });
+    return { success: true };
+  } catch (error) {
+    console.error("Performance Registration Error:", error);
+    return { success: false, error: "Registration failed. Please try again later." };
+  }
+}

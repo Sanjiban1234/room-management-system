@@ -1,22 +1,25 @@
 'use client';
 
 import { useTransition, useState } from 'react';
-import { toggleCallForVolunteers, updateSystemSetting, updateTimeSlots } from '@/app/actions/admin';
+import { toggleCallForVolunteers, toggleCallForPerformance, updateSystemSetting, updateTimeSlots } from '@/app/actions/admin';
 import { Button } from '@/components/ui/Button';
 
 export default function SettingsClient({ 
   initialEnabled,
+  initialPerformanceEnabled,
   initialTopic,
   initialMessage,
   initialTimeSlots,
 }: { 
   initialEnabled: boolean;
+  initialPerformanceEnabled: boolean;
   initialTopic: string;
   initialMessage: string;
   initialTimeSlots: string[];
 }) {
   const [isPending, startTransition] = useTransition();
   const [enabled, setEnabled] = useState(initialEnabled);
+  const [performanceEnabled, setPerformanceEnabled] = useState(initialPerformanceEnabled);
   const [topic, setTopic] = useState(initialTopic);
   const [message, setMessage] = useState(initialMessage);
   const [isSaving, setIsSaving] = useState(false);
@@ -32,6 +35,14 @@ export default function SettingsClient({
     setEnabled(newState);
     startTransition(() => {
       toggleCallForVolunteers(newState);
+    });
+  };
+
+  const handlePerformanceToggle = () => {
+    const newState = !performanceEnabled;
+    setPerformanceEnabled(newState);
+    startTransition(() => {
+      toggleCallForPerformance(newState);
     });
   };
 
@@ -90,6 +101,21 @@ export default function SettingsClient({
           disabled={isPending}
         >
           {enabled ? 'Turn Off' : 'Turn On'}
+        </Button>
+      </div>
+
+      {/* Call for Performance Toggle */}
+      <div className="flex justify-between items-center bg-opacity-20 bg-black" style={{ padding: '1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', marginTop: '1rem' }}>
+        <div>
+          <h3 className="text-lg font-bold">Call for Performance</h3>
+          <p className="text-sm text-muted">When turned on, a button for performance registration is available on the client portal.</p>
+        </div>
+        <Button 
+          onClick={handlePerformanceToggle} 
+          variant={performanceEnabled ? 'secondary' : 'primary'}
+          disabled={isPending}
+        >
+          {performanceEnabled ? 'Turn Off' : 'Turn On'}
         </Button>
       </div>
 

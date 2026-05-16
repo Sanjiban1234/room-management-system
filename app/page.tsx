@@ -15,11 +15,12 @@ export default async function Home() {
   const timeSlots = await getTimeSlots();
 
   // Fetch settings manually
-  const settingsSnapshot = await db.collection('systemSettings').where('key', 'in', ['callForVolunteers', 'volunteerCallTopic', 'volunteerCallMessage']).get();
+  const settingsSnapshot = await db.collection('systemSettings').where('key', 'in', ['callForVolunteers', 'volunteerCallTopic', 'volunteerCallMessage', 'callForPerformance']).get();
   const settingsList = settingsSnapshot.docs.map((doc: any) => doc.data());
 
   const getSetting = (key: string) => settingsList.find((s: any) => s.key === key)?.value;
   const isCallForVolunteers = getSetting('callForVolunteers') === 'true';
+  const isCallForPerformance = getSetting('callForPerformance') === 'true';
   const volunteerTopic = getSetting('volunteerCallTopic') || 'Volunteer Registration';
   const volunteerMessage = getSetting('volunteerCallMessage') || 'We are looking for passionate individuals to join our team. Apply below.';
 
@@ -57,6 +58,7 @@ export default async function Home() {
             <div className="flex gap-4 flex-wrap">
               <a href="#booking" className="btn btn-primary" style={{ padding: '0.75rem 1.5rem', flex: '1 1 auto' }}>Book Now</a>
               {isCallForVolunteers && <a href="#join-us" className="btn btn-secondary" style={{ padding: '0.75rem 1.5rem', flex: '1 1 auto' }}>{volunteerTopic}</a>}
+              {isCallForPerformance && <Link href="/performance-registration" className="btn btn-primary" style={{ padding: '0.75rem 1.5rem', flex: '1 1 auto', background: 'var(--accent-color)' }}>Register for Performance</Link>}
               <a href="#my-booking" className="btn btn-secondary" style={{ padding: '0.75rem 1.5rem', flex: '1 1 auto' }}>My Booking</a>
             </div>
           </div>

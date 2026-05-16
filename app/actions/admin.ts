@@ -54,6 +54,23 @@ export async function deleteAllVolunteerApplicants() {
   revalidatePath('/admin/applicants');
 }
 
+export async function getPerformanceRegistrations() {
+  await ensureAdmin();
+  const snapshot = await db.collection('performanceRegistrations').orderBy('createdAt', 'desc').get();
+  return snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() }));
+}
+
+export async function deleteAllPerformanceRegistrations() {
+  await ensureAdmin();
+  const snapshot = await db.collection('performanceRegistrations').get();
+  const batch = db.batch();
+  snapshot.docs.forEach((doc: any) => {
+    batch.delete(doc.ref);
+  });
+  await batch.commit();
+  revalidatePath('/admin/performances');
+}
+
 // System Settings
 export async function getSystemSetting(key: string) {
   // getSystemSetting is used in public Home page, keep it accessible but validate it's simple
@@ -75,6 +92,11 @@ export async function updateSystemSetting(key: string, value: string) {
 export async function toggleCallForVolunteers(enabled: boolean) {
   await ensureAdmin();
   await updateSystemSetting('callForVolunteers', enabled ? 'true' : 'false');
+}
+
+export async function toggleCallForPerformance(enabled: boolean) {
+  await ensureAdmin();
+  await updateSystemSetting('callForPerformance', enabled ? 'true' : 'false');
 }
 
 // Admin Management

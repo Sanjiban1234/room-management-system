@@ -28,6 +28,12 @@ export default async function AdminDashboardPage() {
   const totalVolunteersSnapshot = await db.collection('volunteers').count().get();
   const totalVolunteers = totalVolunteersSnapshot.data().count;
 
+  const totalVolunteerAppsSnapshot = await db.collection('volunteerApplicants').count().get();
+  const totalVolunteerApps = totalVolunteerAppsSnapshot.data().count;
+
+  const totalPerformancesSnapshot = await db.collection('performanceRegistrations').count().get();
+  const totalPerformances = totalPerformancesSnapshot.data().count;
+
   return (
     <div className="flex-col gap-6">
       <h1 className="text-2xl font-bold">Dashboard</h1>
@@ -40,6 +46,14 @@ export default async function AdminDashboardPage() {
         <div className="glass-panel" style={{ padding: '1.5rem', flex: 1 }}>
           <h3 className="text-muted text-sm">Total Volunteers</h3>
           <p className="text-2xl font-bold" style={{ color: 'var(--accent-color)', marginTop: '0.5rem' }}>{totalVolunteers}</p>
+        </div>
+        <div className="glass-panel" style={{ padding: '1.5rem', flex: 1 }}>
+          <h3 className="text-muted text-sm">Volunteer Applicants</h3>
+          <p className="text-2xl font-bold" style={{ color: 'var(--success-color)', marginTop: '0.5rem' }}>{totalVolunteerApps}</p>
+        </div>
+        <div className="glass-panel" style={{ padding: '1.5rem', flex: 1 }}>
+          <h3 className="text-muted text-sm">Performance Registrations</h3>
+          <p className="text-2xl font-bold" style={{ color: 'var(--primary-color)', marginTop: '0.5rem' }}>{totalPerformances}</p>
         </div>
       </div>
 

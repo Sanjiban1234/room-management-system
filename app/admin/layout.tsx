@@ -13,6 +13,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { href: '/admin/bookings', label: 'Bookings' },
     { href: '/admin/volunteers', label: 'Volunteers' },
     { href: '/admin/applicants', label: 'Applicants' },
+    { href: '/admin/performances', label: 'Performances' },
     { href: '/admin/blocked-dates', label: 'Blocked Dates' },
     { href: '/admin/settings', label: 'Settings' },
   ];
