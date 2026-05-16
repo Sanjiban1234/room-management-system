@@ -1,7 +1,15 @@
 import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 
-const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET || 'super-secret-fallback-key-for-dev-only');
+if (!process.env.JWT_SECRET) {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('❌ JWT_SECRET environment variable is MISSING. Please set it in your environment variables.');
+  } else {
+    console.warn('⚠️  JWT_SECRET is missing. Using an insecure fallback for development only.');
+  }
+}
+
+const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET || 'dev-fallback-only-change-this-in-production');
 
 export async function signToken(payload: any) {
   return await new SignJWT(payload)

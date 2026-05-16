@@ -80,13 +80,33 @@ export async function createBooking(data: BookingData) {
 }
 
 export async function getBookings() {
+  // 🛡️ SECURITY: Only return fields needed for availability checking.
+  // DO NOT return name, phone, faculty, or batch to unauthenticated users.
   const snapshot = await db.collection('bookings').get();
-  return snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() }));
+  return snapshot.docs.map((doc: any) => {
+    const data = doc.data();
+    return { 
+      id: doc.id, 
+      date: data.date, 
+      timeSlot: data.timeSlot, 
+      volunteerId: data.volunteerId,
+      status: data.status || 'active'
+    };
+  });
 }
 
 export async function getPublicVolunteers() {
+  // 🛡️ SECURITY: Only return public info. Exclude phone numbers.
   const snapshot = await db.collection('volunteers').orderBy('name', 'asc').get();
-  return snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() }));
+  return snapshot.docs.map((doc: any) => {
+    const data = doc.data();
+    return { 
+      id: doc.id, 
+      name: data.name, 
+      faculty: data.faculty,
+      batch: data.batch 
+    };
+  });
 }
 
 export async function getTimeSlots(): Promise<string[]> {
