@@ -2,6 +2,7 @@ import { db } from '@/lib/firebase';
 import Link from 'next/link';
 import { hasBookingPassed } from '@/lib/utils';
 import { getSession } from '@/lib/auth';
+import DashboardStatistics from './DashboardStatistics';
 
 export const dynamic = 'force-dynamic';
 
@@ -37,6 +38,12 @@ export default async function AdminDashboardPage() {
 
   const totalPerformancesSnapshot = await db.collection('performanceRegistrations').count().get();
   const totalPerformances = totalPerformancesSnapshot.data().count;
+
+  const registrationsSnapshot = await db.collection('performanceRegistrations').get();
+  const registrations = registrationsSnapshot.docs.map((doc: any) => ({
+    id: doc.id,
+    ...doc.data()
+  }));
 
   return (
     <div className="flex-col gap-6">
@@ -114,6 +121,8 @@ export default async function AdminDashboardPage() {
           </div>
         )}
       </div>
+
+      <DashboardStatistics registrations={registrations} />
     </div>
   );
 }
