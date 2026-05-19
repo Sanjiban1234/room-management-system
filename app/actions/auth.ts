@@ -28,7 +28,7 @@ export async function loginAction(formData: FormData) {
     return { error: 'Invalid credentials' };
   }
 
-  await setSession(adminDoc.id);
+  await setSession(adminDoc.id, admin.name || '', admin.username);
   // Using direct redirect in server action
   redirect('/admin/dashboard');
 }

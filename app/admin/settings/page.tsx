@@ -2,6 +2,7 @@ import { db } from '@/lib/firebase';
 import SettingsClient from './SettingsClient';
 import AdminsClient from './AdminsClient';
 import { getAdmins, getTimeSlots } from '@/app/actions/admin';
+import { getSession } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,6 +19,9 @@ export default async function SettingsPage() {
 
   const admins = await getAdmins();
   const timeSlots = await getTimeSlots();
+  const session = await getSession() as any;
+  const currentAdminId = (session?.adminId as string) || '';
+  const currentAdminUsername = (session?.username as string) || '';
 
   return (
     <div className="flex-col gap-12">
@@ -36,7 +40,11 @@ export default async function SettingsPage() {
 
       <div className="flex-col gap-6" style={{ marginTop: '2rem' }}>
         <h1 className="text-2xl font-bold" style={{ marginBottom: '1rem' }}>Admin Management</h1>
-        <AdminsClient admins={admins} />
+        <AdminsClient 
+          admins={admins} 
+          currentAdminId={currentAdminId} 
+          currentAdminUsername={currentAdminUsername} 
+        />
       </div>
     </div>
   );

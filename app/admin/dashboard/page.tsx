@@ -1,10 +1,13 @@
 import { db } from '@/lib/firebase';
 import Link from 'next/link';
 import { hasBookingPassed } from '@/lib/utils';
+import { getSession } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
 export default async function AdminDashboardPage() {
+  const session = await getSession() as any;
+  const adminName = (session?.name as string) || 'Admin';
   const bookingsSnapshot = await db.collection('bookings').orderBy('createdAt', 'desc').limit(5).get();
   
   // Fetch all volunteers for manual join
@@ -37,7 +40,7 @@ export default async function AdminDashboardPage() {
 
   return (
     <div className="flex-col gap-6">
-      <h1 className="text-2xl font-bold">Dashboard</h1>
+      <h1 className="text-2xl font-bold">Welcome, {adminName}</h1>
       
       <div className="flex flex-wrap gap-4" style={{ marginBottom: '2rem' }}>
         <div className="glass-panel" style={{ padding: '1.5rem', flex: '1 1 200px' }}>

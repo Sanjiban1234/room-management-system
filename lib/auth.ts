@@ -28,8 +28,8 @@ export async function verifyToken(token: string) {
   }
 }
 
-export async function setSession(adminId: string) {
-  const token = await signToken({ adminId });
+export async function setSession(adminId: string, name: string, username: string) {
+  const token = await signToken({ adminId, name, username });
   const cookieStore = await cookies();
   cookieStore.set('session', token, {
     httpOnly: true,
