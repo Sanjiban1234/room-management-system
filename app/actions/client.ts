@@ -225,6 +225,24 @@ export async function createVolunteerApplication(data: any) {
       return { success: false, error: validated.error.issues[0].message };
     }
 
+    // Check for duplicate application by email
+    const emailQuery = await db.collection('volunteerApplicants')
+      .where('email', '==', validated.data.email)
+      .limit(1)
+      .get();
+    if (!emailQuery.empty) {
+      return { success: false, error: "An application with this email has already been submitted." };
+    }
+
+    // Check for duplicate application by phone
+    const phoneQuery = await db.collection('volunteerApplicants')
+      .where('phone', '==', validated.data.phone)
+      .limit(1)
+      .get();
+    if (!phoneQuery.empty) {
+      return { success: false, error: "An application with this phone number has already been submitted." };
+    }
+
     await db.collection('volunteerApplicants').doc().set({
       ...validated.data,
       createdAt: new Date().toISOString()
