@@ -111,9 +111,12 @@ export default function BookingLookup() {
         <div style={{ flex: 1 }}>
           <Input
             label="Phone Number"
+            type="tel"
+            inputMode="numeric"
+            pattern="[0-9]*"
             placeholder="98XXXXXXXX"
             value={phone}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhone(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhone(e.target.value.replace(/[^0-9]/g, ''))}
             onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => { if (e.key === 'Enter') { e.preventDefault(); handleLookup(); } }}
           />
         </div>
