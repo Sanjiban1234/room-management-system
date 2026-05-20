@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/Input';
 import { addBlockedDate, deleteBlockedDate } from '@/app/actions/admin';
 import { Trash2, Calendar as CalendarIcon, Plus } from 'lucide-react';
 import { Calendar } from '@/components/ui/Calendar';
+import { formatLocalDate } from '@/lib/utils';
 
 export default function BlockedDatesClient({ initialBlockedDates }: { initialBlockedDates: any[] }) {
   const [selectedDate, setSelectedDate] = useState('');
@@ -69,7 +70,7 @@ export default function BlockedDatesClient({ initialBlockedDates }: { initialBlo
                   <Calendar 
                     selectedDate={selectedDate} 
                     onSelect={setSelectedDate} 
-                    minDate={new Date().toISOString().split('T')[0]} 
+                    minDate={formatLocalDate(new Date())} 
                   />
                 </div>
               </div>

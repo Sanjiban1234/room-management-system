@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/Input';
 import { Calendar } from '@/components/ui/Calendar';
 import { createBooking } from '@/app/actions/client';
 import { z } from 'zod';
-import { hasBookingPassed } from '@/lib/utils';
+import { hasBookingPassed, formatLocalDate, parseLocalDate } from '@/lib/utils';
 
 const bookingSchema = z.object({
   clientName: z.string().min(2, "Name is too short"),
@@ -227,7 +227,7 @@ export default function BookingForm({
           <Calendar 
             selectedDate={selectedDate} 
             onSelect={setSelectedDate} 
-            minDate={new Date().toISOString().split('T')[0]} 
+            minDate={formatLocalDate(new Date())} 
             blockedDates={blockedDates}
           />
         </div>
@@ -248,7 +248,7 @@ export default function BookingForm({
           <div>
             <p className="text-sm font-bold" style={{ color: 'var(--primary)' }}>Selection Summary</p>
             <p className="text-xs text-muted">
-              {new Date(selectedDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} with {volunteers.find(v => v.id === selectedVolunteer)?.name}
+              {parseLocalDate(selectedDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} with {volunteers.find(v => v.id === selectedVolunteer)?.name}
             </p>
           </div>
         </div>

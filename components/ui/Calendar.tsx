@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { formatLocalDate, parseLocalDate } from '@/lib/utils';
 
 interface CalendarProps {
   selectedDate: string;
@@ -61,8 +62,11 @@ export const Calendar: React.FC<CalendarProps> = ({
       case 'Enter':
       case ' ':
         const date = new Date(year, month, focusedDate);
-        const dateString = date.toISOString().split('T')[0];
-        const isPast = date < (minDate ? new Date(minDate) : new Date());
+        date.setHours(0, 0, 0, 0);
+        const dateString = formatLocalDate(date);
+        const minDateObj = minDate ? parseLocalDate(minDate) : new Date();
+        minDateObj.setHours(0, 0, 0, 0);
+        const isPast = date < minDateObj;
         const isBlocked = blockedDates.includes(dateString);
         if (!isPast && !isBlocked) {
           onSelect(dateString);
@@ -92,14 +96,14 @@ export const Calendar: React.FC<CalendarProps> = ({
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const min = minDate ? new Date(minDate) : today;
+    const min = minDate ? parseLocalDate(minDate) : today;
     min.setHours(0, 0, 0, 0);
 
     for (let day = 1; day <= totalDays; day++) {
       const date = new Date(year, month, day);
       date.setHours(0, 0, 0, 0);
       
-      const dateString = date.toISOString().split('T')[0];
+      const dateString = formatLocalDate(date);
       const isSelected = selectedDate === dateString;
       const isPast = date < min;
       const isBlocked = blockedDates.includes(dateString);
@@ -301,7 +305,7 @@ export const Calendar: React.FC<CalendarProps> = ({
       `}</style>
       {selectedDate && (
         <div className="selected-date-info">
-          Selected: {new Date(selectedDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+          Selected: {parseLocalDate(selectedDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
         </div>
       )}
     </div>
