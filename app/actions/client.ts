@@ -240,7 +240,7 @@ const performanceSchema = z.object({
   name: z.string().min(2, "Name is too short"),
   phone: z.string().min(10, "Invalid phone number"),
   collegeMail: z.string().email("Invalid email address"),
-  performanceType: z.enum(["Dance", "Singing", "Poem", "Standup", "Drama", "Other"]),
+  performanceType: z.enum(["Dance", "Singing", "Poem", "Standup", "Drama", "Band", "Other"]),
   otherPerformanceType: z.string().optional(),
   type: z.enum(["Solo", "Group"]),
   groupName: z.string().optional(),

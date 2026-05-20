@@ -168,6 +168,7 @@ export default function PerformanceForm({ coordinators }: { coordinators?: Recor
           <option value="Poem">Poem</option>
           <option value="Standup">Standup</option>
           <option value="Drama">Drama</option>
+          <option value="Band">Band</option>
           <option value="Other">Other</option>
         </select>
       </div>

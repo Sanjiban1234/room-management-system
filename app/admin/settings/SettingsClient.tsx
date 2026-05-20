@@ -27,7 +27,7 @@ export default function SettingsClient({
   const [isSaving, setIsSaving] = useState(false);
 
   const [coordinators, setCoordinators] = useState<Record<string, { name: string, phone: string }>>(() => {
-    const performanceTypes = ["Dance", "Singing", "Poem", "Standup", "Drama", "Other"];
+    const performanceTypes = ["Dance", "Singing", "Poem", "Standup", "Drama", "Band", "Other"];
     const initial: Record<string, { name: string, phone: string }> = {};
     performanceTypes.forEach(type => {
       initial[type] = initialCoordinators?.[type] || { name: '', phone: '' };
