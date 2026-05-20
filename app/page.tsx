@@ -44,7 +44,7 @@ export default async function Home() {
           <div style={{ flex: 1, padding: '3rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', zIndex: 2 }}>
             <h1 className="text-4xl font-bold" style={{ marginBottom: '1rem', lineHeight: '1.1' }}>Welcome to our <span style={{ color: 'var(--primary-color)' }}>Music Club website</span></h1>
             <p className="text-lg text-muted" style={{ maxWidth: '400px', marginBottom: '2rem' }}>
-              Systematic room allocement for everyone
+              Systematic room allotment for everyone
             </p>
             <div className="flex gap-4 flex-wrap">
               <a href="#booking" className="btn btn-primary" style={{ padding: '0.75rem 1.5rem', flex: '1 1 auto' }}>Book Now</a>
