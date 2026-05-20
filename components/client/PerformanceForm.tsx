@@ -15,7 +15,7 @@ export default function PerformanceForm({ coordinators }: { coordinators?: Recor
   const [groupName, setGroupName] = useState('');
   const [materialRequired, setMaterialRequired] = useState('');
   const [copiedText, setCopiedText] = useState<string | null>(null);
-  
+
   const [groupMembers, setGroupMembers] = useState([{ name: '', phone: '' }]);
 
   const handleAddMember = () => {
@@ -44,7 +44,7 @@ export default function PerformanceForm({ coordinators }: { coordinators?: Recor
     e.preventDefault();
     setError(null);
     const formData = new FormData(e.currentTarget);
-    
+
     const data = {
       name: formData.get('name') as string,
       phone: formData.get('phone') as string,
@@ -87,7 +87,7 @@ export default function PerformanceForm({ coordinators }: { coordinators?: Recor
               </h4>
               <p className="text-xs text-muted" style={{ marginTop: '0.25rem' }}>Please contact your performance coordinator for event details, timing, and rehearsal slots.</p>
             </div>
-            
+
             <div className="flex-col gap-3">
               {currentCoordinator.name && (
                 <div className="flex justify-between items-center bg-black bg-opacity-20 animate-fade-in" style={{ padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}>
@@ -95,10 +95,10 @@ export default function PerformanceForm({ coordinators }: { coordinators?: Recor
                     <span className="text-xs text-muted">Name</span>
                     <span className="font-semibold text-sm">{currentCoordinator.name}</span>
                   </div>
-                  <button 
+                  <button
                     type="button"
                     onClick={() => handleCopy(currentCoordinator.name, 'Name')}
-                    className="btn btn-secondary text-xs" 
+                    className="btn btn-secondary text-xs"
                     style={{ padding: '0.35rem 0.75rem', minWidth: '70px' }}
                   >
                     {copiedText === 'Name' ? 'Copied!' : 'Copy'}
@@ -112,10 +112,10 @@ export default function PerformanceForm({ coordinators }: { coordinators?: Recor
                     <span className="text-xs text-muted">Phone Number</span>
                     <span className="font-semibold text-sm">{currentCoordinator.phone}</span>
                   </div>
-                  <button 
+                  <button
                     type="button"
                     onClick={() => handleCopy(currentCoordinator.phone, 'Phone')}
-                    className="btn btn-secondary text-xs" 
+                    className="btn btn-secondary text-xs"
                     style={{ padding: '0.35rem 0.75rem', minWidth: '70px' }}
                   >
                     {copiedText === 'Phone' ? 'Copied!' : 'Copy'}
@@ -156,11 +156,11 @@ export default function PerformanceForm({ coordinators }: { coordinators?: Recor
 
       <div className="flex-col gap-2">
         <label htmlFor="performanceType" className="text-sm font-medium">Type of Performance</label>
-        <select 
-          id="performanceType" 
+        <select
+          id="performanceType"
           value={performanceType}
           onChange={(e) => setPerformanceType(e.target.value)}
-          className="input" 
+          className="input"
           required
         >
           <option value="Dance">Dance</option>
@@ -175,13 +175,13 @@ export default function PerformanceForm({ coordinators }: { coordinators?: Recor
       {performanceType === 'Other' && (
         <div className="flex-col gap-2 animate-fade-in">
           <label htmlFor="otherPerformanceType" className="text-sm font-medium">Specify Performance</label>
-          <input 
-            type="text" 
-            id="otherPerformanceType" 
+          <input
+            type="text"
+            id="otherPerformanceType"
             value={otherPerformanceType}
             onChange={(e) => setOtherPerformanceType(e.target.value)}
-            className="input" 
-            placeholder="Please specify" 
+            className="input"
+            placeholder="Please specify"
             required={performanceType === 'Other'}
           />
         </div>
@@ -191,22 +191,22 @@ export default function PerformanceForm({ coordinators }: { coordinators?: Recor
         <label className="text-sm font-medium">Performance Type</label>
         <div className="flex gap-4">
           <label className="flex items-center gap-2 cursor-pointer">
-            <input 
-              type="radio" 
-              name="type" 
-              value="Solo" 
-              checked={type === 'Solo'} 
+            <input
+              type="radio"
+              name="type"
+              value="Solo"
+              checked={type === 'Solo'}
               onChange={() => setType('Solo')}
               className="accent-primary"
             />
             Solo
           </label>
           <label className="flex items-center gap-2 cursor-pointer">
-            <input 
-              type="radio" 
-              name="type" 
-              value="Group" 
-              checked={type === 'Group'} 
+            <input
+              type="radio"
+              name="type"
+              value="Group"
+              checked={type === 'Group'}
               onChange={() => setType('Group')}
               className="accent-primary"
             />
@@ -219,12 +219,12 @@ export default function PerformanceForm({ coordinators }: { coordinators?: Recor
         <div className="flex-col gap-4 animate-fade-in" style={{ padding: '1.5rem', backgroundColor: 'rgba(0,0,0,0.2)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
           <div className="flex-col gap-2">
             <label htmlFor="groupName" className="text-sm font-medium">Group Name</label>
-            <input 
-              type="text" 
-              id="groupName" 
+            <input
+              type="text"
+              id="groupName"
               value={groupName}
               onChange={(e) => setGroupName(e.target.value)}
-              className="input w-full" 
+              className="input w-full"
               placeholder="Enter your group's name"
               required={type === 'Group'}
             />
@@ -234,9 +234,9 @@ export default function PerformanceForm({ coordinators }: { coordinators?: Recor
             <div key={index} className="flex gap-2 items-end">
               <div className="flex-col gap-1" style={{ flex: 1 }}>
                 <label className="text-xs text-muted">Name</label>
-                <input 
-                  type="text" 
-                  className="input w-full" 
+                <input
+                  type="text"
+                  className="input w-full"
                   value={member.name}
                   onChange={(e) => handleMemberChange(index, 'name', e.target.value)}
                   required
@@ -244,9 +244,9 @@ export default function PerformanceForm({ coordinators }: { coordinators?: Recor
               </div>
               <div className="flex-col gap-1" style={{ flex: 1 }}>
                 <label className="text-xs text-muted">Phone</label>
-                <input 
-                  type="tel" 
-                  className="input w-full" 
+                <input
+                  type="tel"
+                  className="input w-full"
                   value={member.phone}
                   onChange={(e) => handleMemberChange(index, 'phone', e.target.value)}
                   required
@@ -267,16 +267,16 @@ export default function PerformanceForm({ coordinators }: { coordinators?: Recor
 
       <div className="flex-col gap-2">
         <label htmlFor="materialRequired" className="text-sm font-medium">Material required for performance</label>
-        <textarea 
-          id="materialRequired" 
+        <textarea
+          id="materialRequired"
           value={materialRequired}
           onChange={(e) => setMaterialRequired(e.target.value)}
-          className="input w-full" 
-          placeholder="e.g. Mic, guitar, speakers, background tracks, none, etc." 
+          className="input w-full"
+          placeholder="e.g. Mic, guitar, speakers, background tracks, none, etc."
           rows={2}
           style={{ minHeight: '60px', paddingTop: '0.5rem', paddingBottom: '0.5rem' }}
         />
-        <p className="text-xs text-muted">Specify if you need any instruments, audio visual support, or props.</p>
+        <p className="text-xs text-muted">Specify if you need any instruments, Dresses , other props</p>
       </div>
 
       <Button type="submit" disabled={isPending} className="w-full" style={{ marginTop: '1rem', padding: '1rem' }}>
