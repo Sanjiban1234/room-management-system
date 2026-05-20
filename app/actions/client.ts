@@ -243,6 +243,8 @@ const performanceSchema = z.object({
   performanceType: z.enum(["Dance", "Singing", "Poem", "Standup", "Drama", "Other"]),
   otherPerformanceType: z.string().optional(),
   type: z.enum(["Solo", "Group"]),
+  groupName: z.string().optional(),
+  materialRequired: z.string().optional(),
   groupMembers: z.array(z.object({
     name: z.string().min(2, "Name is required"),
     phone: z.string().min(10, "Phone is required")

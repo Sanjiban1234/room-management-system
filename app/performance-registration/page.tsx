@@ -1,12 +1,24 @@
 import Link from 'next/link';
 import PerformanceForm from '@/components/client/PerformanceForm';
+import { db } from '@/lib/firebase';
+
+export const dynamic = 'force-dynamic';
 
 export const metadata = {
   title: 'Performance Registration | Slot System',
   description: 'Register for your performance.',
 };
 
-export default function PerformanceRegistrationPage() {
+export default async function PerformanceRegistrationPage() {
+  const doc = await db.collection('systemSettings').doc('performanceCoordinators').get();
+  const coordinatorsRaw = doc.exists ? doc.data()?.value : '{}';
+  let coordinators = {};
+  try {
+    coordinators = JSON.parse(coordinatorsRaw);
+  } catch (e) {
+    coordinators = {};
+  }
+
   return (
     <div className="container animate-fade-in" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', padding: '1rem' }}>
       <header className="flex justify-between items-center" style={{ padding: '1.5rem 0', marginBottom: '2rem' }}>
@@ -24,7 +36,7 @@ export default function PerformanceRegistrationPage() {
             <p className="text-muted">Fill out the form below to register your performance.</p>
           </div>
           
-          <PerformanceForm />
+          <PerformanceForm coordinators={coordinators} />
         </div>
       </main>
 

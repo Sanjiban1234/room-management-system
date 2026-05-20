@@ -7,7 +7,7 @@ import { getSession } from '@/lib/auth';
 export const dynamic = 'force-dynamic';
 
 export default async function SettingsPage() {
-  const settingsSnapshot = await db.collection('systemSettings').where('key', 'in', ['callForVolunteers', 'volunteerCallTopic', 'volunteerCallMessage', 'callForPerformance']).get();
+  const settingsSnapshot = await db.collection('systemSettings').where('key', 'in', ['callForVolunteers', 'volunteerCallTopic', 'volunteerCallMessage', 'callForPerformance', 'performanceCoordinators']).get();
   const settings = settingsSnapshot.docs.map((doc: any) => doc.data());
   
   const getSetting = (key: string) => settings.find((s: any) => s.key === key)?.value;
@@ -16,6 +16,13 @@ export default async function SettingsPage() {
   const isPerformanceEnabled = getSetting('callForPerformance') === 'true';
   const topic = getSetting('volunteerCallTopic') || 'Volunteer Registration';
   const message = getSetting('volunteerCallMessage') || 'We are looking for passionate individuals to join our team. Apply below.';
+  const coordinatorsRaw = getSetting('performanceCoordinators') || '{}';
+  let coordinators = {};
+  try {
+    coordinators = JSON.parse(coordinatorsRaw);
+  } catch (e) {
+    coordinators = {};
+  }
 
   const admins = await getAdmins();
   const timeSlots = await getTimeSlots();
@@ -34,6 +41,7 @@ export default async function SettingsPage() {
             initialTopic={topic} 
             initialMessage={message}
             initialTimeSlots={timeSlots}
+            initialCoordinators={coordinators}
           />
         </div>
       </div>

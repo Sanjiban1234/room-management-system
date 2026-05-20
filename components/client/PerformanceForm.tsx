@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react';
 import { createPerformanceRegistration } from '@/app/actions/client';
 import { Button } from '@/components/ui/Button';
 
-export default function PerformanceForm() {
+export default function PerformanceForm({ coordinators }: { coordinators?: Record<string, { name: string, phone: string }> }) {
   const [isPending, startTransition] = useTransition();
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -12,6 +12,9 @@ export default function PerformanceForm() {
   const [performanceType, setPerformanceType] = useState('Dance');
   const [otherPerformanceType, setOtherPerformanceType] = useState('');
   const [type, setType] = useState('Solo');
+  const [groupName, setGroupName] = useState('');
+  const [materialRequired, setMaterialRequired] = useState('');
+  const [copiedText, setCopiedText] = useState<string | null>(null);
   
   const [groupMembers, setGroupMembers] = useState([{ name: '', phone: '' }]);
 
@@ -31,6 +34,12 @@ export default function PerformanceForm() {
     setGroupMembers(newMembers);
   };
 
+  const handleCopy = (text: string, label: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedText(label);
+    setTimeout(() => setCopiedText(null), 2000);
+  };
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
@@ -43,6 +52,8 @@ export default function PerformanceForm() {
       performanceType,
       otherPerformanceType,
       type,
+      groupName: type === 'Group' ? groupName : undefined,
+      materialRequired: materialRequired || undefined,
       groupMembers: type === 'Group' ? groupMembers.filter(m => m.name && m.phone) : undefined
     };
 
@@ -57,12 +68,65 @@ export default function PerformanceForm() {
   };
 
   if (success) {
+    const currentCoordinator = coordinators?.[performanceType] || { name: '', phone: '' };
+    const hasCoordinator = currentCoordinator.name || currentCoordinator.phone;
+
     return (
-      <div className="flex-col items-center justify-center text-center gap-4 animate-fade-in" style={{ padding: '2rem' }}>
-        <div style={{ fontSize: '3rem', color: 'var(--success-color)' }}>✅</div>
-        <h3 className="text-xl font-bold">Registration Successful!</h3>
-        <p className="text-muted">Thank you for registering. We will contact you soon.</p>
-        <Button onClick={() => window.location.href = '/'} style={{ marginTop: '1rem' }}>Return Home</Button>
+      <div className="flex-col items-center justify-center text-center gap-6 animate-fade-in" style={{ padding: '1rem' }}>
+        <div style={{ fontSize: '3.5rem', color: 'var(--success-color)', filter: 'drop-shadow(0 0 10px rgba(46, 204, 113, 0.2))' }}>✅</div>
+        <div>
+          <h3 className="text-xl font-bold" style={{ marginBottom: '0.5rem' }}>Registration Successful!</h3>
+          <p className="text-muted">Thank you for registering. Your details have been submitted successfully.</p>
+        </div>
+
+        {hasCoordinator && (
+          <div className="glass-panel text-left w-full flex-col gap-4" style={{ padding: '1.5rem', border: '1px solid var(--border-color)', backgroundColor: 'rgba(255, 255, 255, 0.02)', borderRadius: 'var(--radius-md)', marginTop: '0.5rem' }}>
+            <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>
+              <h4 className="font-bold text-sm" style={{ color: 'var(--accent-color)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                📞 Coordinator Information
+              </h4>
+              <p className="text-xs text-muted" style={{ marginTop: '0.25rem' }}>Please contact your performance coordinator for event details, timing, and rehearsal slots.</p>
+            </div>
+            
+            <div className="flex-col gap-3">
+              {currentCoordinator.name && (
+                <div className="flex justify-between items-center bg-black bg-opacity-20 animate-fade-in" style={{ padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}>
+                  <div className="flex-col">
+                    <span className="text-xs text-muted">Name</span>
+                    <span className="font-semibold text-sm">{currentCoordinator.name}</span>
+                  </div>
+                  <button 
+                    type="button"
+                    onClick={() => handleCopy(currentCoordinator.name, 'Name')}
+                    className="btn btn-secondary text-xs" 
+                    style={{ padding: '0.35rem 0.75rem', minWidth: '70px' }}
+                  >
+                    {copiedText === 'Name' ? 'Copied!' : 'Copy'}
+                  </button>
+                </div>
+              )}
+
+              {currentCoordinator.phone && (
+                <div className="flex justify-between items-center bg-black bg-opacity-20 animate-fade-in" style={{ padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}>
+                  <div className="flex-col">
+                    <span className="text-xs text-muted">Phone Number</span>
+                    <span className="font-semibold text-sm">{currentCoordinator.phone}</span>
+                  </div>
+                  <button 
+                    type="button"
+                    onClick={() => handleCopy(currentCoordinator.phone, 'Phone')}
+                    className="btn btn-secondary text-xs" 
+                    style={{ padding: '0.35rem 0.75rem', minWidth: '70px' }}
+                  >
+                    {copiedText === 'Phone' ? 'Copied!' : 'Copy'}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        <Button onClick={() => window.location.href = '/'} style={{ marginTop: '0.5rem', width: '100%' }}>Return Home</Button>
       </div>
     );
   }
@@ -152,8 +216,20 @@ export default function PerformanceForm() {
       </div>
 
       {type === 'Group' && (
-        <div className="flex-col gap-4 animate-fade-in" style={{ padding: '1rem', backgroundColor: 'rgba(0,0,0,0.2)', borderRadius: 'var(--radius-md)' }}>
-          <h4 className="font-bold text-sm">Group Members</h4>
+        <div className="flex-col gap-4 animate-fade-in" style={{ padding: '1.5rem', backgroundColor: 'rgba(0,0,0,0.2)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+          <div className="flex-col gap-2">
+            <label htmlFor="groupName" className="text-sm font-medium">Group Name</label>
+            <input 
+              type="text" 
+              id="groupName" 
+              value={groupName}
+              onChange={(e) => setGroupName(e.target.value)}
+              className="input w-full" 
+              placeholder="Enter your group's name"
+              required={type === 'Group'}
+            />
+          </div>
+          <h4 className="font-bold text-sm" style={{ marginTop: '0.5rem' }}>Group Members</h4>
           {groupMembers.map((member, index) => (
             <div key={index} className="flex gap-2 items-end">
               <div className="flex-col gap-1" style={{ flex: 1 }}>
@@ -188,6 +264,20 @@ export default function PerformanceForm() {
           </Button>
         </div>
       )}
+
+      <div className="flex-col gap-2">
+        <label htmlFor="materialRequired" className="text-sm font-medium">Material required for performance</label>
+        <textarea 
+          id="materialRequired" 
+          value={materialRequired}
+          onChange={(e) => setMaterialRequired(e.target.value)}
+          className="input w-full" 
+          placeholder="e.g. Mic, guitar, speakers, background tracks, none, etc." 
+          rows={2}
+          style={{ minHeight: '60px', paddingTop: '0.5rem', paddingBottom: '0.5rem' }}
+        />
+        <p className="text-xs text-muted">Specify if you need any instruments, audio visual support, or props.</p>
+      </div>
 
       <Button type="submit" disabled={isPending} className="w-full" style={{ marginTop: '1rem', padding: '1rem' }}>
         {isPending ? 'Registering...' : 'Register Now'}

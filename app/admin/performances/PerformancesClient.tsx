@@ -28,7 +28,9 @@ export default function PerformancesClient({ initialRegistrations }: { initialRe
         'College Mail': reg.collegeMail,
         'Performance Category': typeStr,
         'Solo/Group': reg.type,
+        'Group Name': reg.groupName || '',
         'Group Members': groupMembersStr,
+        'Material Required': reg.materialRequired || '',
         'Applied At': new Date(reg.createdAt).toLocaleString(),
       };
     });
@@ -141,7 +143,8 @@ export default function PerformancesClient({ initialRegistrations }: { initialRe
                   <th>Contact</th>
                   <th>Performance Type</th>
                   <th>Type</th>
-                  <th>Members</th>
+                  <th>Group Details</th>
+                  <th>Material Required</th>
                   <th>Applied At</th>
                 </tr>
               </thead>
@@ -169,14 +172,26 @@ export default function PerformancesClient({ initialRegistrations }: { initialRe
                       </span>
                     </td>
                     <td style={{ maxWidth: '200px' }}>
-                      {reg.type === 'Group' && reg.groupMembers ? (
-                        <div className="text-xs">
-                          {reg.groupMembers.map((m: any, i: number) => (
-                            <div key={i}>{m.name} ({m.phone})</div>
-                          ))}
+                      {reg.type === 'Group' ? (
+                        <div className="text-xs flex-col gap-1">
+                          {reg.groupName && <div className="font-bold" style={{ color: 'var(--accent-color)', marginBottom: '0.2rem' }}>Group: {reg.groupName}</div>}
+                          {reg.groupMembers && reg.groupMembers.length > 0 && (
+                            <div className="text-muted">
+                              {reg.groupMembers.map((m: any, i: number) => (
+                                <div key={i}>{m.name} ({m.phone})</div>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       ) : (
                         <span className="text-muted text-xs">-</span>
+                      )}
+                    </td>
+                    <td style={{ maxWidth: '180px', whiteSpace: 'normal', wordBreak: 'break-all' }} className="text-xs">
+                      {reg.materialRequired ? (
+                        <span className="font-medium">{reg.materialRequired}</span>
+                      ) : (
+                        <span className="text-muted">-</span>
                       )}
                     </td>
                     <td className="text-sm">{new Date(reg.createdAt).toLocaleDateString()}</td>

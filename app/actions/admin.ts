@@ -239,6 +239,18 @@ export async function updateTimeSlots(slots: string[]) {
   revalidatePath('/admin/settings');
 }
 
+export async function updatePerformanceCoordinators(coordinators: Record<string, { name: string, phone: string }>) {
+  await ensureAdmin();
+  await db.collection('systemSettings').doc('performanceCoordinators').set({
+    key: 'performanceCoordinators',
+    value: JSON.stringify(coordinators),
+    updatedAt: new Date().toISOString()
+  });
+  revalidatePath('/');
+  revalidatePath('/admin/settings');
+  revalidatePath('/performance-registration');
+}
+
 // Blocked Dates
 export async function getBlockedDates() {
   await ensureAdmin();
