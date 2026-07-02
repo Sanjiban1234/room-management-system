@@ -78,7 +78,7 @@ export default function BookingsClient({ initialBookings }: { initialBookings: a
       try {
         await cancelBooking(bookingId);
         setBookings(prev => prev.map(b => b.id === bookingId ? { ...b, status: 'cancelled' } : b));
-      } catch (e) {
+      } catch {
         alert('Failed to cancel booking. Please try again.');
       } finally {
         setCancellingId(null);

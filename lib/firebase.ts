@@ -27,7 +27,7 @@ if (getApps().length > 0) {
 } else {
   // Return a proxy that throws an error only when queries are actually made
   db = new Proxy({}, {
-    get(target, prop) {
+    get() {
       throw new Error(`🔥 Firebase backend is not initialized properly. Please ensure FIREBASE_SERVICE_ACCOUNT_KEY in your .env contains the Base64-encoded version of your ENTIRE JSON file, not just the private key string.`);
     }
   });

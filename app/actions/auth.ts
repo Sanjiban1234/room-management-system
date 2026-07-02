@@ -6,6 +6,7 @@ import { setSession, clearSession } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 
 import { headers } from 'next/headers';
+import { getClientIp, checkRateLimit } from '@/lib/rate-limiter';
 
 export async function loginAction(formData: FormData) {
   const username = (formData.get('username') as string)?.toLowerCase();
@@ -15,8 +16,13 @@ export async function loginAction(formData: FormData) {
     return { error: 'Username and password are required' };
   }
 
-  const headersList = await headers();
-  const ip = headersList.get('x-forwarded-for') || '127.0.0.1';
+  const ip = await getClientIp();
+
+  // Enforce global rate limit (10 total login attempts per 15 minutes per IP)
+  const globalRateLimit = await checkRateLimit('login_attempts', ip, 10, 15 * 60 * 1000);
+  if (!globalRateLimit.allowed) {
+    return { error: 'Too many login attempts. Please try again after 15 minutes.' };
+  }
 
   // Check rate limit: max 5 failed attempts within 15 minutes
   const failedAttemptsQuery = await db.collection('failedLoginAttempts')

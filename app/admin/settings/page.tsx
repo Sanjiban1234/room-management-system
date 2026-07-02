@@ -20,7 +20,7 @@ export default async function SettingsPage() {
   let coordinators = {};
   try {
     coordinators = JSON.parse(coordinatorsRaw);
-  } catch (e) {
+  } catch {
     coordinators = {};
   }
 

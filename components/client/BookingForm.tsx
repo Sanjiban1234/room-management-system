@@ -88,7 +88,7 @@ export default function BookingForm({
       } else {
         setError(response.error || "Booking failed. Please try again.");
       }
-    } catch (err) {
+    } catch {
       setError("An unexpected error occurred.");
     } finally {
       setLoading(false);

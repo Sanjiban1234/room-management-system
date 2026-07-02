@@ -54,7 +54,7 @@ export default function VolunteersClient({ initialVolunteers }: { initialVolunte
       } else {
         alert('No valid rows found. Ensure the Excel has name, faculty, batch, and phone columns.');
       }
-    } catch (err) {
+    } catch {
       alert('Error importing Excel file.');
     }
     

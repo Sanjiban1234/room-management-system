@@ -4,7 +4,6 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { logoutAction } from '@/app/actions/auth';
-import { Button } from '@/components/ui/Button';
 import { Menu, X, LayoutDashboard, Calendar, Users, UserPlus, Music, Clock, Settings, LogOut } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

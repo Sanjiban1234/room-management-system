@@ -44,7 +44,7 @@ export default function ApplicationForm() {
       } else {
         setError(response.error || "Submission failed. Please try again.");
       }
-    } catch (err) {
+    } catch {
       setError("An unexpected error occurred.");
     } finally {
       setLoading(false);

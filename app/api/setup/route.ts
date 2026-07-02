@@ -1,11 +1,18 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcrypt';
 import { db } from '@/lib/firebase';
+import { getClientIp, checkRateLimit } from '@/lib/rate-limiter';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
+    const ip = await getClientIp();
+    const rateLimit = await checkRateLimit('api_setup', ip, 3, 15 * 60 * 1000);
+    if (!rateLimit.allowed) {
+      return NextResponse.json({ error: 'Too many requests. Please try again after 15 minutes.' }, { status: 429 });
+    }
+
     const adminsSnapshot = await db.collection('admins').limit(1).get();
     
     if (!adminsSnapshot.empty) {

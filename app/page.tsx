@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import BookingForm from '@/components/client/BookingForm';
 import ApplicationForm from '@/components/client/ApplicationForm';
 import BookingLookup from '@/components/client/BookingLookup';
@@ -33,11 +34,14 @@ export default async function Home() {
         {/* Hero Section with Club Image */}
         <div className="flex-col lg:flex-row hero-container" style={{ minHeight: '400px', marginBottom: '2rem', position: 'relative' }}>
           
-          <div className="hero-image-wrapper" style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
-            <img
+          <div className="hero-image-wrapper" style={{ flex: 1, position: 'relative', overflow: 'hidden', minHeight: '250px' }}>
+            <Image
               src="/hero-image.jpg"
               alt="Music Club"
-              style={{ width: '100%', height: '100%', objectFit: 'cover', minHeight: '250px' }}
+              fill
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              priority
+              style={{ objectFit: 'cover' }}
             />
           </div>
 

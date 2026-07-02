@@ -33,7 +33,7 @@ export function hasBookingPassed(dateStr: string, timeSlot: string): boolean {
     sessionEndTime.setHours(endHour, endMinute, 0);
     
     return now > sessionEndTime;
-  } catch (e) {
+  } catch {
     return false;
   }
 }

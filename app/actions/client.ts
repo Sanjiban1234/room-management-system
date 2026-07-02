@@ -2,6 +2,7 @@
 
 import { db } from '@/lib/firebase';
 import { z } from 'zod';
+import { getClientIp, checkRateLimit } from '@/lib/rate-limiter';
 
 const DEFAULT_TIME_SLOTS = ['2:30-3:30', '3:30-4:30', '4:30-5:30'];
 
@@ -19,6 +20,12 @@ type BookingData = z.infer<typeof bookingSchema>;
 
 export async function createBooking(data: BookingData) {
   try {
+    const ip = await getClientIp();
+    const rateLimit = await checkRateLimit('create_booking', ip, 5, 15 * 60 * 1000);
+    if (!rateLimit.allowed) {
+      return { success: false, error: 'Too many booking requests. Please try again after 15 minutes.' };
+    }
+
     // 1. Validate Input
     const validated = bookingSchema.safeParse(data);
     if (!validated.success) {
@@ -129,6 +136,13 @@ export async function getBookingsByPhone(phone: string) {
   if (!phone || phone.trim().length < 7) {
     return { success: false, error: 'Please enter a valid phone number.' };
   }
+
+  const ip = await getClientIp();
+  const rateLimit = await checkRateLimit('lookup_bookings', ip, 10, 15 * 60 * 1000);
+  if (!rateLimit.allowed) {
+    return { success: false, error: 'Too many lookup requests. Please try again after 15 minutes.' };
+  }
+
   try {
     // Note: orderBy('date') combined with where('phone') needs a composite index.
     // Sort in JS to avoid requiring index setup.
@@ -177,6 +191,13 @@ export async function cancelBookingByPhone(bookingId: string, phone: string) {
   if (!bookingId || !phone) {
     return { success: false, error: 'Invalid request.' };
   }
+
+  const ip = await getClientIp();
+  const rateLimit = await checkRateLimit('cancel_booking', ip, 5, 15 * 60 * 1000);
+  if (!rateLimit.allowed) {
+    return { success: false, error: 'Too many cancellation requests. Please try again after 15 minutes.' };
+  }
+
   try {
     const docRef = db.collection('bookings').doc(bookingId);
     const doc = await docRef.get();
@@ -220,6 +241,12 @@ const applicantSchema = z.object({
 
 export async function createVolunteerApplication(data: any) {
   try {
+    const ip = await getClientIp();
+    const rateLimit = await checkRateLimit('create_volunteer_application', ip, 3, 30 * 60 * 1000);
+    if (!rateLimit.allowed) {
+      return { success: false, error: 'Too many application submissions. Please try again after 30 minutes.' };
+    }
+
     const validated = applicantSchema.safeParse(data);
     if (!validated.success) {
       return { success: false, error: validated.error.issues[0].message };
@@ -271,6 +298,12 @@ const performanceSchema = z.object({
 
 export async function createPerformanceRegistration(data: any) {
   try {
+    const ip = await getClientIp();
+    const rateLimit = await checkRateLimit('create_performance_registration', ip, 3, 30 * 60 * 1000);
+    if (!rateLimit.allowed) {
+      return { success: false, error: 'Too many registration attempts. Please try again after 30 minutes.' };
+    }
+
     const validated = performanceSchema.safeParse(data);
     if (!validated.success) {
       return { success: false, error: validated.error.issues[0].message };

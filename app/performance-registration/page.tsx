@@ -15,7 +15,7 @@ export default async function PerformanceRegistrationPage() {
   let coordinators = {};
   try {
     coordinators = JSON.parse(coordinatorsRaw);
-  } catch (e) {
+  } catch {
     coordinators = {};
   }
 

@@ -30,7 +30,7 @@ export default function BlockedDatesClient({ initialBlockedDates }: { initialBlo
       await addBlockedDate(date, reason || null);
       setShowAddForm(false);
       window.location.reload();
-    } catch (error) {
+    } catch {
       alert('Failed to block date.');
     } finally {
       setLoading(false);
@@ -42,7 +42,7 @@ export default function BlockedDatesClient({ initialBlockedDates }: { initialBlo
     try {
       await deleteBlockedDate(id);
       window.location.reload();
-    } catch (error) {
+    } catch {
       alert('Failed to unblock date.');
     }
   };

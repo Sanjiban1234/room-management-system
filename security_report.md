@@ -6,7 +6,7 @@ This document outlines the final security audit of the **Slot Booking and Perfor
 
 ## 1. Dependency Vulnerability Analysis (`npm audit`)
 
-We ran `npm audit` and identified 11 initial vulnerabilities across dependencies. All packages have been audited and patched using standard npm dependency overrides.
+We ran `npm audit` and identified 11 initial vulnerabilities across dependencies. All packages have been audited and secured using standard npm dependency overrides.
 
 | Package | Severity | Issue | Resolution / Mitigation |
 | :--- | :--- | :--- | :--- |
@@ -30,8 +30,8 @@ We ran `npm audit` and identified 11 initial vulnerabilities across dependencies
 
 ---
 
-## 3. Rate Limiting & Abuse Prevention (New Patches)
-To protect against brute-force attacks and spam, the following mitigations have been deployed:
+## 3. Rate Limiting & Abuse Prevention
+To protect against brute-force attacks and spam, the following mitigations have been implemented:
 
 1. **Admin Login Protection:**
    We implemented an IP-based sliding window in `loginAction`. A maximum of **5 failed login attempts per IP within a 15-minute window** is allowed. Further attempts are blocked. Failed logs are immediately cleared upon successful authentication.
