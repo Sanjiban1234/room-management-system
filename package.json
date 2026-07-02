@@ -6,8 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
-    "reset-admin": "node scripts/reset-admin.js"
+    "lint": "eslint"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
