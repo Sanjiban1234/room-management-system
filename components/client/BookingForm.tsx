@@ -5,18 +5,8 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Calendar } from '@/components/ui/Calendar';
 import { createBooking } from '@/app/actions/client';
-import { z } from 'zod';
+import { bookingSchema, type BookingData } from '@/lib/schemas';
 import { hasBookingPassed, formatLocalDate, parseLocalDate } from '@/lib/utils';
-
-const bookingSchema = z.object({
-  clientName: z.string().min(2, "Name is too short"),
-  phone: z.string().min(10, "Invalid phone number"),
-  faculty: z.enum(["BEI", "BEL", "BCT", "BCE", "BCA"]),
-  batch: z.string().min(1, "Batch is required"),
-  date: z.string().min(1, "Date is required"),
-  timeSlot: z.string().min(1, "Time slot is required"),
-  volunteerId: z.string().min(1, "Volunteer is required"),
-});
 
 export default function BookingForm({ 
   volunteers, 

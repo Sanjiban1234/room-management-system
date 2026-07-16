@@ -3,11 +3,23 @@
 import { useState, useTransition } from 'react';
 import { createPerformanceRegistration } from '@/app/actions/client';
 import { Button } from '@/components/ui/Button';
+import { PHONE_REGEX } from '@/lib/schemas';
+
+interface FieldErrors {
+  name?: string;
+  phone?: string;
+  collegeMail?: string;
+  otherPerformanceType?: string;
+  groupName?: string;
+  materialRequired?: string;
+  members?: Record<number, { name?: string; phone?: string }>;
+}
 
 export default function PerformanceForm({ coordinators }: { coordinators?: Record<string, { name: string, phone: string }> }) {
   const [isPending, startTransition] = useTransition();
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
   const [performanceType, setPerformanceType] = useState('Dance');
   const [otherPerformanceType, setOtherPerformanceType] = useState('');
@@ -40,15 +52,61 @@ export default function PerformanceForm({ coordinators }: { coordinators?: Recor
     setTimeout(() => setCopiedText(null), 2000);
   };
 
+  const validateForm = (
+    name: string,
+    phone: string,
+    collegeMail: string,
+    members: { name: string; phone: string }[]
+  ): FieldErrors => {
+    const errors: FieldErrors = {};
+    if (!name || name.trim().length < 2) errors.name = 'Name must be at least 2 characters.';
+    else if (name.trim().length > 100) errors.name = 'Name must be 100 characters or fewer.';
+
+    if (!phone || phone.trim().length < 10) errors.phone = 'Phone number must be at least 10 digits.';
+    else if (!PHONE_REGEX.test(phone.trim())) errors.phone = 'Phone must contain only digits, spaces, +, -, or ()';
+
+    if (!collegeMail || !collegeMail.includes('@')) errors.collegeMail = 'Please enter a valid email address.';
+    else if (collegeMail.length > 254) errors.collegeMail = 'Email address is too long.';
+
+    if (performanceType === 'Other' && (!otherPerformanceType || otherPerformanceType.trim().length === 0)) {
+      errors.otherPerformanceType = 'Please specify your performance type.';
+    }
+
+    if (type === 'Group') {
+      if (!groupName || groupName.trim().length === 0) errors.groupName = 'Group name is required.';
+      const memberErrors: Record<number, { name?: string; phone?: string }> = {};
+      members.forEach((m, i) => {
+        const me: { name?: string; phone?: string } = {};
+        if (!m.name || m.name.trim().length < 2) me.name = 'Member name must be at least 2 characters.';
+        if (!m.phone || !PHONE_REGEX.test(m.phone.trim())) me.phone = 'Member phone must be a valid number.';
+        if (me.name || me.phone) memberErrors[i] = me;
+      });
+      if (Object.keys(memberErrors).length > 0) errors.members = memberErrors;
+    }
+    return errors;
+  };
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
     const formData = new FormData(e.currentTarget);
 
+    const name = formData.get('name') as string;
+    const phone = formData.get('phone') as string;
+    const collegeMail = formData.get('collegeMail') as string;
+
+    // Client-side validation
+    const validationErrors = validateForm(name, phone, collegeMail, groupMembers);
+    if (Object.keys(validationErrors).length > 0) {
+      setFieldErrors(validationErrors);
+      return;
+    }
+    setFieldErrors({});
+
     const data = {
-      name: formData.get('name') as string,
-      phone: formData.get('phone') as string,
-      collegeMail: formData.get('collegeMail') as string,
+      name,
+      phone,
+      collegeMail,
       performanceType,
       otherPerformanceType,
       type,
@@ -141,17 +199,20 @@ export default function PerformanceForm({ coordinators }: { coordinators?: Recor
 
       <div className="flex-col gap-2">
         <label htmlFor="name" className="text-sm font-medium">Name</label>
-        <input type="text" id="name" name="name" className="input" placeholder="Your full name" required />
+        <input type="text" id="name" name="name" className="input" placeholder="Your full name" required maxLength={100} />
+        {fieldErrors.name && <p style={{ color: 'var(--error-color)', fontSize: '0.78rem', marginTop: '0.25rem' }}>⚠ {fieldErrors.name}</p>}
       </div>
 
       <div className="flex-col gap-2">
         <label htmlFor="phone" className="text-sm font-medium">Phone Number</label>
-        <input type="tel" id="phone" name="phone" className="input" placeholder="Your phone number" required />
+        <input type="tel" id="phone" name="phone" className="input" placeholder="98XXXXXXXX" required maxLength={15} />
+        {fieldErrors.phone && <p style={{ color: 'var(--error-color)', fontSize: '0.78rem', marginTop: '0.25rem' }}>⚠ {fieldErrors.phone}</p>}
       </div>
 
       <div className="flex-col gap-2">
         <label htmlFor="collegeMail" className="text-sm font-medium">College Mail</label>
-        <input type="email" id="collegeMail" name="collegeMail" className="input" placeholder="you@college.edu" required />
+        <input type="email" id="collegeMail" name="collegeMail" className="input" placeholder="you@college.edu" required maxLength={254} />
+        {fieldErrors.collegeMail && <p style={{ color: 'var(--error-color)', fontSize: '0.78rem', marginTop: '0.25rem' }}>⚠ {fieldErrors.collegeMail}</p>}
       </div>
 
       <div className="flex-col gap-2">
@@ -184,7 +245,9 @@ export default function PerformanceForm({ coordinators }: { coordinators?: Recor
             className="input"
             placeholder="Please specify"
             required={performanceType === 'Other'}
+            maxLength={100}
           />
+          {fieldErrors.otherPerformanceType && <p style={{ color: 'var(--error-color)', fontSize: '0.78rem', marginTop: '0.25rem' }}>⚠ {fieldErrors.otherPerformanceType}</p>}
         </div>
       )}
 
@@ -228,7 +291,9 @@ export default function PerformanceForm({ coordinators }: { coordinators?: Recor
               className="input w-full"
               placeholder="Enter your group's name"
               required={type === 'Group'}
+              maxLength={100}
             />
+            {fieldErrors.groupName && <p style={{ color: 'var(--error-color)', fontSize: '0.78rem', marginTop: '0.25rem' }}>⚠ {fieldErrors.groupName}</p>}
           </div>
           <h4 className="font-bold text-sm" style={{ marginTop: '0.5rem' }}>Group Members</h4>
           {groupMembers.map((member, index) => (
@@ -241,7 +306,9 @@ export default function PerformanceForm({ coordinators }: { coordinators?: Recor
                   value={member.name}
                   onChange={(e) => handleMemberChange(index, 'name', e.target.value)}
                   required
+                  maxLength={100}
                 />
+                {fieldErrors.members?.[index]?.name && <p style={{ color: 'var(--error-color)', fontSize: '0.75rem' }}>⚠ {fieldErrors.members[index].name}</p>}
               </div>
               <div className="flex-col gap-1" style={{ flex: 1 }}>
                 <label className="text-xs text-muted">Phone</label>
@@ -251,7 +318,9 @@ export default function PerformanceForm({ coordinators }: { coordinators?: Recor
                   value={member.phone}
                   onChange={(e) => handleMemberChange(index, 'phone', e.target.value)}
                   required
+                  maxLength={15}
                 />
+                {fieldErrors.members?.[index]?.phone && <p style={{ color: 'var(--error-color)', fontSize: '0.75rem' }}>⚠ {fieldErrors.members[index].phone}</p>}
               </div>
               {groupMembers.length > 1 && (
                 <Button type="button" variant="secondary" onClick={() => handleRemoveMember(index)} style={{ padding: '0.5rem 0.75rem', color: 'var(--error-color)' }}>
@@ -275,9 +344,14 @@ export default function PerformanceForm({ coordinators }: { coordinators?: Recor
           className="input w-full"
           placeholder="e.g. Mic, guitar, speakers, background tracks, none, etc."
           rows={2}
+          maxLength={500}
           style={{ minHeight: '60px', paddingTop: '0.5rem', paddingBottom: '0.5rem' }}
         />
-        <p className="text-xs text-muted">Specify if you need any instruments, Dresses , other props</p>
+        <div className="flex justify-between">
+          <p className="text-xs text-muted">Specify if you need any instruments, Dresses , other props</p>
+          <p className="text-xs text-muted" style={{ whiteSpace: 'nowrap' }}>{materialRequired.length}/500</p>
+        </div>
+        {fieldErrors.materialRequired && <p style={{ color: 'var(--error-color)', fontSize: '0.78rem' }}>⚠ {fieldErrors.materialRequired}</p>}
       </div>
 
       <Button type="submit" disabled={isPending} className="w-full" style={{ marginTop: '1rem', padding: '1rem' }}>

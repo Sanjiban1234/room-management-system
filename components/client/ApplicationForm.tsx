@@ -4,14 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { createVolunteerApplication } from '@/app/actions/client';
-import { z } from 'zod';
-
-const applicantSchema = z.object({
-  name: z.string().min(2, "Name is too short"),
-  faculty: z.enum(["BEI", "BEL", "BCT", "BCE", "BCA"]),
-  phone: z.string().min(10, "Invalid phone number"),
-  email: z.string().email("Invalid email address"),
-});
+import { applicantSchema } from '@/lib/schemas';
 
 export default function ApplicationForm() {
   const [success, setSuccess] = useState(false);

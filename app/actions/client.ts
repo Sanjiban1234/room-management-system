@@ -1,22 +1,15 @@
 'use server';
 
 import { db } from '@/lib/firebase';
-import { z } from 'zod';
 import { getClientIp, checkRateLimit } from '@/lib/rate-limiter';
+import {
+  bookingSchema,
+  applicantSchema,
+  performanceSchema,
+  type BookingData,
+} from '@/lib/schemas';
 
 const DEFAULT_TIME_SLOTS = ['2:30-3:30', '3:30-4:30', '4:30-5:30'];
-
-const bookingSchema = z.object({
-  clientName: z.string().min(2, "Name is too short"),
-  phone: z.string().min(10, "Invalid phone number"),
-  faculty: z.enum(["BEI", "BEL", "BCT", "BCE", "BCA"]),
-  batch: z.string().min(1, "Batch is required"),
-  date: z.string().min(1, "Date is required"),
-  timeSlot: z.string().min(1, "Time slot is required"),
-  volunteerId: z.string().min(1, "Volunteer is required"),
-});
-
-type BookingData = z.infer<typeof bookingSchema>;
 
 export async function createBooking(data: BookingData) {
   try {
@@ -232,12 +225,6 @@ export async function cancelBookingByPhone(bookingId: string, phone: string) {
   }
 }
 
-const applicantSchema = z.object({
-  name: z.string().min(2, "Name is too short"),
-  faculty: z.enum(["BEI", "BEL", "BCT", "BCE", "BCA"]),
-  phone: z.string().min(10, "Invalid phone number"),
-  email: z.string().email("Invalid email address"),
-});
 
 export async function createVolunteerApplication(data: any) {
   try {
@@ -281,20 +268,6 @@ export async function createVolunteerApplication(data: any) {
   }
 }
 
-const performanceSchema = z.object({
-  name: z.string().min(2, "Name is too short"),
-  phone: z.string().min(10, "Invalid phone number"),
-  collegeMail: z.string().email("Invalid email address"),
-  performanceType: z.enum(["Dance", "Singing", "Poem", "Standup", "Drama", "Band", "Other"]),
-  otherPerformanceType: z.string().optional(),
-  type: z.enum(["Solo", "Group"]),
-  groupName: z.string().optional(),
-  materialRequired: z.string().optional(),
-  groupMembers: z.array(z.object({
-    name: z.string().min(2, "Name is required"),
-    phone: z.string().min(10, "Phone is required")
-  })).optional()
-});
 
 export async function createPerformanceRegistration(data: any) {
   try {

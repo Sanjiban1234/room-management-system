@@ -6,6 +6,15 @@ import { getClientIp, checkRateLimit } from '@/lib/rate-limiter';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
+  // 🛡️ SECURITY: Disable this endpoint in production unless explicitly allowed.
+  // Set ALLOW_SETUP=true in your environment ONLY during initial setup, then remove it.
+  if (process.env.NODE_ENV === 'production' && process.env.ALLOW_SETUP !== 'true') {
+    return NextResponse.json(
+      { error: 'This endpoint is disabled in production.' },
+      { status: 403 }
+    );
+  }
+
   try {
     const ip = await getClientIp();
     const rateLimit = await checkRateLimit('api_setup', ip, 3, 15 * 60 * 1000);
