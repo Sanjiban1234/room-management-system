@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import { createPerformanceRegistration } from '@/app/actions/client';
 import { Button } from '@/components/ui/Button';
-import { PHONE_REGEX } from '@/lib/schemas';
+import { PHONE_REGEX, COLLEGE_EMAIL_DOMAIN, NAME_REGEX } from '@/lib/schemas';
 
 interface FieldErrors {
   name?: string;
@@ -61,12 +61,14 @@ export default function PerformanceForm({ coordinators }: { coordinators?: Recor
     const errors: FieldErrors = {};
     if (!name || name.trim().length < 2) errors.name = 'Name must be at least 2 characters.';
     else if (name.trim().length > 100) errors.name = 'Name must be 100 characters or fewer.';
+    else if (!NAME_REGEX.test(name.trim())) errors.name = 'Name can only contain letters, spaces, dots, and hyphens.';
 
     if (!phone || phone.trim().length < 10) errors.phone = 'Phone number must be at least 10 digits.';
     else if (!PHONE_REGEX.test(phone.trim())) errors.phone = 'Phone must contain only digits, spaces, +, -, or ()';
 
     if (!collegeMail || !collegeMail.includes('@')) errors.collegeMail = 'Please enter a valid email address.';
     else if (collegeMail.length > 254) errors.collegeMail = 'Email address is too long.';
+    else if (!collegeMail.toLowerCase().endsWith(COLLEGE_EMAIL_DOMAIN)) errors.collegeMail = 'Email must end with @acem.edu.np';
 
     if (performanceType === 'Other' && (!otherPerformanceType || otherPerformanceType.trim().length === 0)) {
       errors.otherPerformanceType = 'Please specify your performance type.';
@@ -78,6 +80,7 @@ export default function PerformanceForm({ coordinators }: { coordinators?: Recor
       members.forEach((m, i) => {
         const me: { name?: string; phone?: string } = {};
         if (!m.name || m.name.trim().length < 2) me.name = 'Member name must be at least 2 characters.';
+        else if (!NAME_REGEX.test(m.name.trim())) me.name = 'Member name can only contain letters, spaces, dots, and hyphens.';
         if (!m.phone || !PHONE_REGEX.test(m.phone.trim())) me.phone = 'Member phone must be a valid number.';
         if (me.name || me.phone) memberErrors[i] = me;
       });
@@ -211,7 +214,7 @@ export default function PerformanceForm({ coordinators }: { coordinators?: Recor
 
       <div className="flex-col gap-2">
         <label htmlFor="collegeMail" className="text-sm font-medium">College Mail</label>
-        <input type="email" id="collegeMail" name="collegeMail" className="input" placeholder="you@college.edu" required maxLength={254} />
+        <input type="email" id="collegeMail" name="collegeMail" className="input" placeholder="yourname@acem.edu.np" required maxLength={254} />
         {fieldErrors.collegeMail && <p style={{ color: 'var(--error-color)', fontSize: '0.78rem', marginTop: '0.25rem' }}>⚠ {fieldErrors.collegeMail}</p>}
       </div>
 

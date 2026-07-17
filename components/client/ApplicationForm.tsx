@@ -79,7 +79,7 @@ export default function ApplicationForm() {
       </div>
       <div className="flex gap-4">
         <Input label="Phone Number" name="phone" required placeholder="98XXXXXXXX" style={{ flex: 1 }} />
-        <Input label="Email (Gmail preferred)" name="email" type="email" required placeholder="example@gmail.com" style={{ flex: 1 }} />
+        <Input label="College Email" name="email" type="email" required placeholder="yourname@acem.edu.np" style={{ flex: 1 }} />
       </div>
 
       <div style={{ marginTop: '1rem' }}>
