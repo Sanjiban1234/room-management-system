@@ -4,22 +4,67 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { createVolunteerApplication } from '@/app/actions/client';
-import { applicantSchema } from '@/lib/schemas';
+import { applicantSchema, PHONE_REGEX, COLLEGE_EMAIL_DOMAIN } from '@/lib/schemas';
+
+interface FieldWarnings {
+  phone?: string;
+  email?: string;
+}
 
 export default function ApplicationForm() {
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldWarnings, setFieldWarnings] = useState<FieldWarnings>({});
+
+  // Helper: Filter phone input to only allow valid phone characters
+  const filterPhoneInput = (value: string): string => {
+    return value.replace(/[^0-9+\-()\s]/g, '');
+  };
+
+  // Helper: Check if email is valid acem.edu.np email
+  const isValidAcemEmail = (email: string): boolean => {
+    return email.toLowerCase().endsWith(COLLEGE_EMAIL_DOMAIN) && email.includes('@');
+  };
+
+  // Helper: Get real-time warning for email
+  const getEmailWarning = (email: string): string | undefined => {
+    if (!email) return undefined;
+    if (!email.includes('@')) {
+      return 'Email must contain @';
+    }
+    if (email.includes('@') && !isValidAcemEmail(email)) {
+      return 'Email must end with @acem.edu.np';
+    }
+    return undefined;
+  };
+
+  // Helper: Get real-time warning for phone
+  const getPhoneWarning = (phone: string): string | undefined => {
+    if (!phone) return undefined;
+    if (!/^[0-9]/.test(phone)) {
+      return 'Phone must start with a digit';
+    }
+    if (phone.length < 10) {
+      return `Phone must be at least 10 digits (${phone.replace(/\D/g, '').length} digit${phone.replace(/\D/g, '').length !== 1 ? 's' : ''} entered)`;
+    }
+    return undefined;
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
     
     const formData = new FormData(e.currentTarget);
+    const phone = (formData.get('phone') as string) || '';
+    
+    // Filter phone to ensure only valid characters
+    const filteredPhone = filterPhoneInput(phone);
+    
     const data = {
       name: formData.get('name') as string,
       faculty: formData.get('faculty') as string,
-      phone: formData.get('phone') as string,
+      phone: filteredPhone,
       email: formData.get('email') as string,
     };
 
@@ -78,8 +123,63 @@ export default function ApplicationForm() {
         </div>
       </div>
       <div className="flex gap-4">
-        <Input label="Phone Number" name="phone" required placeholder="98XXXXXXXX" style={{ flex: 1 }} />
-        <Input label="College Email" name="email" type="email" required placeholder="yourname@acem.edu.np" style={{ flex: 1 }} />
+        <div className="input-group" style={{ flex: 1 }}>
+          <label>Phone Number</label>
+          <input 
+            type="tel" 
+            name="phone" 
+            required 
+            placeholder="98XXXXXXXX"
+            onChange={(e) => {
+              const filtered = filterPhoneInput(e.currentTarget.value);
+              e.currentTarget.value = filtered;
+              
+              const warning = getPhoneWarning(filtered);
+              setFieldWarnings(prev => ({
+                ...prev,
+                phone: warning
+              }));
+            }}
+            onBlur={(e) => {
+              const warning = getPhoneWarning(e.currentTarget.value);
+              if (warning) {
+                setFieldWarnings(prev => ({
+                  ...prev,
+                  phone: warning
+                }));
+              }
+            }}
+            className="input"
+          />
+          {fieldWarnings.phone && <p style={{ color: '#f39c12', fontSize: '0.78rem', marginTop: '0.25rem' }}>ℹ {fieldWarnings.phone}</p>}
+        </div>
+        <div className="input-group" style={{ flex: 1 }}>
+          <label>College Email</label>
+          <input 
+            type="email" 
+            name="email" 
+            required 
+            placeholder="yourname@acem.edu.np"
+            onChange={(e) => {
+              const warning = getEmailWarning(e.currentTarget.value);
+              setFieldWarnings(prev => ({
+                ...prev,
+                email: warning
+              }));
+            }}
+            onBlur={(e) => {
+              const warning = getEmailWarning(e.currentTarget.value);
+              if (warning) {
+                setFieldWarnings(prev => ({
+                  ...prev,
+                  email: warning
+                }));
+              }
+            }}
+            className="input"
+          />
+          {fieldWarnings.email && <p style={{ color: '#f39c12', fontSize: '0.78rem', marginTop: '0.25rem' }}>ℹ {fieldWarnings.email}</p>}
+        </div>
       </div>
 
       <div style={{ marginTop: '1rem' }}>

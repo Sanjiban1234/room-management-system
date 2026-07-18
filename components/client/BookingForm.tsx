@@ -5,8 +5,12 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Calendar } from '@/components/ui/Calendar';
 import { createBooking } from '@/app/actions/client';
-import { bookingSchema, type BookingData } from '@/lib/schemas';
+import { bookingSchema, type BookingData, PHONE_REGEX } from '@/lib/schemas';
 import { hasBookingPassed, formatLocalDate, parseLocalDate } from '@/lib/utils';
+
+interface FieldWarnings {
+  phone?: string;
+}
 
 export default function BookingForm({ 
   volunteers, 
@@ -24,6 +28,7 @@ export default function BookingForm({
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldWarnings, setFieldWarnings] = useState<FieldWarnings>({});
   const [selectedBatch, setSelectedBatch] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedVolunteer, setSelectedVolunteer] = useState('');
@@ -31,6 +36,23 @@ export default function BookingForm({
 
   const batches = Array.from(new Set(volunteers.map(v => v.batch).filter(b => b !== ''))).sort();
   const filteredVolunteers = volunteers.filter(v => !selectedBatch || v.batch === selectedBatch);
+
+  // Helper: Filter phone input to only allow valid phone characters
+  const filterPhoneInput = (value: string): string => {
+    return value.replace(/[^0-9+\-()\s]/g, '');
+  };
+
+  // Helper: Get real-time warning for phone
+  const getPhoneWarning = (phone: string): string | undefined => {
+    if (!phone) return undefined;
+    if (!/^[0-9]/.test(phone)) {
+      return 'Phone must start with a digit';
+    }
+    if (phone.length < 10) {
+      return `Phone must be at least 10 digits (${phone.replace(/\D/g, '').length} digit${phone.replace(/\D/g, '').length !== 1 ? 's' : ''} entered)`;
+    }
+    return undefined;
+  };
 
   const isSlotBooked = (slot: string) => {
     return initialBookings.some(b => 
@@ -53,11 +75,16 @@ export default function BookingForm({
     setError(null);
 
     const formData = new FormData(e.currentTarget);
+    const phone = (formData.get('phone') as string) || '';
+    
+    // Filter phone to ensure only valid characters
+    const filteredPhone = filterPhoneInput(phone);
+    
     const data = {
       clientName: formData.get('clientName') as string,
       faculty: formData.get('faculty') as string,
       batch: formData.get('batch') as string,
-      phone: formData.get('phone') as string,
+      phone: filteredPhone,
       date: selectedDate,
       timeSlot: selectedTimeSlot,
       volunteerId: selectedVolunteer,
@@ -157,7 +184,36 @@ export default function BookingForm({
 
       <div className="flex gap-4">
         <Input label="Full Name" name="clientName" required placeholder="John Doe" style={{ flex: 1 }} />
-        <Input label="Phone Number" name="phone" required placeholder="98XXXXXXXX" style={{ flex: 1 }} />
+        <div className="input-group" style={{ flex: 1 }}>
+          <label>Phone Number</label>
+          <input 
+            type="tel" 
+            name="phone" 
+            required 
+            placeholder="98XXXXXXXX"
+            onChange={(e) => {
+              const filtered = filterPhoneInput(e.currentTarget.value);
+              e.currentTarget.value = filtered;
+              
+              const warning = getPhoneWarning(filtered);
+              setFieldWarnings(prev => ({
+                ...prev,
+                phone: warning
+              }));
+            }}
+            onBlur={(e) => {
+              const warning = getPhoneWarning(e.currentTarget.value);
+              if (warning) {
+                setFieldWarnings(prev => ({
+                  ...prev,
+                  phone: warning
+                }));
+              }
+            }}
+            className="input"
+          />
+          {fieldWarnings.phone && <p style={{ color: '#f39c12', fontSize: '0.78rem', marginTop: '0.25rem' }}>ℹ {fieldWarnings.phone}</p>}
+        </div>
       </div>
       
       <div className="flex gap-4">

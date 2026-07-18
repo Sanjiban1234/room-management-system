@@ -15,11 +15,18 @@ interface FieldErrors {
   members?: Record<number, { name?: string; phone?: string }>;
 }
 
+interface FieldWarnings {
+  phone?: string;
+  collegeMail?: string;
+  members?: Record<number, { phone?: string }>;
+}
+
 export default function PerformanceForm({ coordinators }: { coordinators?: Record<string, { name: string, phone: string }> }) {
   const [isPending, startTransition] = useTransition();
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const [fieldWarnings, setFieldWarnings] = useState<FieldWarnings>({});
 
   const [performanceType, setPerformanceType] = useState('Dance');
   const [otherPerformanceType, setOtherPerformanceType] = useState('');
@@ -29,6 +36,40 @@ export default function PerformanceForm({ coordinators }: { coordinators?: Recor
   const [copiedText, setCopiedText] = useState<string | null>(null);
 
   const [groupMembers, setGroupMembers] = useState([{ name: '', phone: '' }]);
+
+  // Helper: Filter phone input to only allow valid phone characters
+  const filterPhoneInput = (value: string): string => {
+    return value.replace(/[^0-9+\-()\s]/g, '');
+  };
+
+  // Helper: Check if email is valid acem.edu.np email
+  const isValidAcemEmail = (email: string): boolean => {
+    return email.toLowerCase().endsWith(COLLEGE_EMAIL_DOMAIN) && email.includes('@');
+  };
+
+  // Helper: Get real-time warning for email
+  const getEmailWarning = (email: string): string | undefined => {
+    if (!email) return undefined;
+    if (!email.includes('@')) {
+      return 'Email must contain @';
+    }
+    if (email.includes('@') && !isValidAcemEmail(email)) {
+      return 'Email must end with @acem.edu.np';
+    }
+    return undefined;
+  };
+
+  // Helper: Get real-time warning for phone
+  const getPhoneWarning = (phone: string): string | undefined => {
+    if (!phone) return undefined;
+    if (!/^[0-9]/.test(phone)) {
+      return 'Phone must start with a digit';
+    }
+    if (phone.length < 10) {
+      return `Phone must be at least 10 digits (${phone.replace(/\D/g, '').length} digit${phone.replace(/\D/g, '').length !== 1 ? 's' : ''} entered)`;
+    }
+    return undefined;
+  };
 
   const handleAddMember = () => {
     setGroupMembers([...groupMembers, { name: '', phone: '' }]);
@@ -42,8 +83,23 @@ export default function PerformanceForm({ coordinators }: { coordinators?: Recor
 
   const handleMemberChange = (index: number, field: 'name' | 'phone', value: string) => {
     const newMembers = [...groupMembers];
-    newMembers[index][field] = value;
+    // Filter phone input to only allow valid characters
+    const finalValue = field === 'phone' ? filterPhoneInput(value) : value;
+    newMembers[index][field] = finalValue;
     setGroupMembers(newMembers);
+    
+    // Clear warning for this field
+    if (field === 'phone') {
+      const newWarnings = { ...fieldWarnings };
+      if (!newWarnings.members) newWarnings.members = {};
+      if (newWarnings.members[index]) {
+        delete newWarnings.members[index].phone;
+        if (Object.keys(newWarnings.members[index]).length === 0) {
+          delete newWarnings.members[index];
+        }
+      }
+      setFieldWarnings(newWarnings);
+    }
   };
 
   const handleCopy = (text: string, label: string) => {
@@ -208,13 +264,75 @@ export default function PerformanceForm({ coordinators }: { coordinators?: Recor
 
       <div className="flex-col gap-2">
         <label htmlFor="phone" className="text-sm font-medium">Phone Number</label>
-        <input type="tel" id="phone" name="phone" className="input" placeholder="98XXXXXXXX" required maxLength={15} />
+        <input 
+          type="tel" 
+          id="phone" 
+          name="phone" 
+          className="input" 
+          placeholder="98XXXXXXXX" 
+          required 
+          maxLength={15}
+          onChange={(e) => {
+            const filtered = filterPhoneInput(e.currentTarget.value);
+            e.currentTarget.value = filtered;
+            
+            // Clear error on input
+            setFieldErrors(prev => ({ ...prev, phone: undefined }));
+            
+            // Set warning if invalid
+            const warning = getPhoneWarning(filtered);
+            setFieldWarnings(prev => ({
+              ...prev,
+              phone: warning
+            }));
+          }}
+          onBlur={(e) => {
+            const warning = getPhoneWarning(e.currentTarget.value);
+            if (warning) {
+              setFieldWarnings(prev => ({
+                ...prev,
+                phone: warning
+              }));
+            }
+          }}
+        />
+        {fieldWarnings.phone && <p style={{ color: '#f39c12', fontSize: '0.78rem', marginTop: '0.25rem' }}>ℹ {fieldWarnings.phone}</p>}
         {fieldErrors.phone && <p style={{ color: 'var(--error-color)', fontSize: '0.78rem', marginTop: '0.25rem' }}>⚠ {fieldErrors.phone}</p>}
       </div>
 
       <div className="flex-col gap-2">
         <label htmlFor="collegeMail" className="text-sm font-medium">College Mail</label>
-        <input type="email" id="collegeMail" name="collegeMail" className="input" placeholder="yourname@acem.edu.np" required maxLength={254} />
+        <input 
+          type="email" 
+          id="collegeMail" 
+          name="collegeMail" 
+          className="input" 
+          placeholder="yourname@acem.edu.np" 
+          required 
+          maxLength={254}
+          onChange={(e) => {
+            const warning = getEmailWarning(e.currentTarget.value);
+            
+            // Clear error on input
+            setFieldErrors(prev => ({ ...prev, collegeMail: undefined }));
+            
+            // Set warning if invalid format
+            setFieldWarnings(prev => ({
+              ...prev,
+              collegeMail: warning
+            }));
+          }}
+          onBlur={(e) => {
+            const warning = getEmailWarning(e.currentTarget.value);
+            if (warning) {
+              setFieldWarnings(prev => ({
+                ...prev,
+                collegeMail: warning
+              }));
+            }
+          }}
+        />
+        {fieldWarnings.collegeMail && <p style={{ color: '#f39c12', fontSize: '0.78rem', marginTop: '0.25rem' }}>ℹ {fieldWarnings.collegeMail}</p>}
         {fieldErrors.collegeMail && <p style={{ color: 'var(--error-color)', fontSize: '0.78rem', marginTop: '0.25rem' }}>⚠ {fieldErrors.collegeMail}</p>}
       </div>
 
@@ -319,10 +437,23 @@ export default function PerformanceForm({ coordinators }: { coordinators?: Recor
                   type="tel"
                   className="input w-full"
                   value={member.phone}
-                  onChange={(e) => handleMemberChange(index, 'phone', e.target.value)}
+                  onChange={(e) => {
+                    handleMemberChange(index, 'phone', e.target.value);
+                  }}
+                  onBlur={(e) => {
+                    const warning = getPhoneWarning(e.currentTarget.value);
+                    if (warning) {
+                      const newWarnings = { ...fieldWarnings };
+                      if (!newWarnings.members) newWarnings.members = {};
+                      if (!newWarnings.members[index]) newWarnings.members[index] = {};
+                      newWarnings.members[index].phone = warning;
+                      setFieldWarnings(newWarnings);
+                    }
+                  }}
                   required
                   maxLength={15}
                 />
+                {fieldWarnings.members?.[index]?.phone && <p style={{ color: '#f39c12', fontSize: '0.7rem' }}>ℹ {fieldWarnings.members[index].phone}</p>}
                 {fieldErrors.members?.[index]?.phone && <p style={{ color: 'var(--error-color)', fontSize: '0.75rem' }}>⚠ {fieldErrors.members[index].phone}</p>}
               </div>
               {groupMembers.length > 1 && (
