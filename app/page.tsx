@@ -4,26 +4,27 @@ import BookingForm from '@/components/client/BookingForm';
 import ApplicationForm from '@/components/client/ApplicationForm';
 import BookingLookup from '@/components/client/BookingLookup';
 import { getBlockedDatesSimple } from '@/app/actions/admin';
-import { getBookings, getPublicVolunteers, getTimeSlots } from '@/app/actions/client';
-import { db } from '@/lib/firebase';
+import { getPublicHomeSettings, getPublicVolunteers, getTimeSlots } from '@/app/actions/client';
 
-export const dynamic = 'force-dynamic';
+// Cache the public page at Vercel's edge and regenerate it at most every five
+// minutes. Admin mutations already call revalidatePath('/'), so content changes
+// are reflected immediately without making every visitor wait for Firestore.
+export const revalidate = 300;
 
 export default async function Home() {
-  const volunteers = await getPublicVolunteers();
-  const bookings = await getBookings();
-  const blockedDates = await getBlockedDatesSimple();
-  const timeSlots = await getTimeSlots();
+  // These public, independent reads start together. Bookings are deliberately
+  // excluded: the client requests only the selected date when it is needed.
+  const [volunteers, blockedDates, timeSlots, settings] = await Promise.all([
+    getPublicVolunteers(),
+    getBlockedDatesSimple(),
+    getTimeSlots(),
+    getPublicHomeSettings(),
+  ]);
 
-  // Fetch settings manually
-  const settingsSnapshot = await db.collection('systemSettings').where('key', 'in', ['callForVolunteers', 'volunteerCallTopic', 'volunteerCallMessage', 'callForPerformance']).get();
-  const settingsList = settingsSnapshot.docs.map((doc: any) => doc.data());
-
-  const getSetting = (key: string) => settingsList.find((s: any) => s.key === key)?.value;
-  const isCallForVolunteers = getSetting('callForVolunteers') === 'true';
-  const isCallForPerformance = getSetting('callForPerformance') === 'true';
-  const volunteerTopic = getSetting('volunteerCallTopic') || 'Volunteer Registration';
-  const volunteerMessage = getSetting('volunteerCallMessage') || 'We are looking for passionate individuals to join our team. Apply below.';
+  const isCallForVolunteers = settings.callForVolunteers === 'true';
+  const isCallForPerformance = settings.callForPerformance === 'true';
+  const volunteerTopic = settings.volunteerCallTopic || 'Volunteer Registration';
+  const volunteerMessage = settings.volunteerCallMessage || 'We are looking for passionate individuals to join our team. Apply below.';
 
   return (
     <div className="container animate-fade-in" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', padding: '1rem' }}>
@@ -70,7 +71,6 @@ export default async function Home() {
             </div>
             <BookingForm
               volunteers={volunteers}
-              initialBookings={bookings}
               blockedDates={blockedDates}
               timeSlots={timeSlots}
             />

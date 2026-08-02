@@ -82,34 +82,77 @@ export async function createBooking(data: BookingData) {
 export async function getBookings() {
   // 🛡️ SECURITY: Only return fields needed for availability checking.
   // DO NOT return name, phone, faculty, or batch to unauthenticated users.
-  const snapshot = await db.collection('bookings').get();
-  return snapshot.docs.map((doc: any) => {
-    const data = doc.data();
-    return { 
-      id: doc.id, 
-      date: data.date, 
-      timeSlot: data.timeSlot, 
-      volunteerId: data.volunteerId,
-      status: data.status || 'active'
+  console.time('getBookings');
+  try {
+    const snapshot = await db.collection('bookings')
+      .select('date', 'timeSlot', 'volunteerId', 'status')
+      .get();
+    return snapshot.docs.map((doc: any) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        date: data.date,
+        timeSlot: data.timeSlot,
+        volunteerId: data.volunteerId,
+        status: data.status || 'active'
+      };
+    });
+  } finally {
+    console.timeEnd('getBookings');
+  }
+}
+
+/** Returns only availability records for the day the visitor selected. */
+export async function getBookingsByDate(date: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return { success: false as const, error: 'Invalid booking date.', bookings: [] };
+  }
+
+  const timer = `getBookingsByDate:${date}`;
+  console.time(timer);
+  try {
+    const snapshot = await db.collection('bookings')
+      .where('date', '==', date)
+      .where('status', '==', 'active')
+      .select('date', 'timeSlot', 'volunteerId', 'status')
+      .get();
+
+    return {
+      success: true as const,
+      bookings: snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() })),
     };
-  });
+  } catch (error) {
+    console.error('getBookingsByDate error:', error);
+    return { success: false as const, error: 'Could not load availability. Please try again.', bookings: [] };
+  } finally {
+    console.timeEnd(timer);
+  }
 }
 
 export async function getPublicVolunteers() {
   // 🛡️ SECURITY: Only return public info. Exclude phone numbers.
-  const snapshot = await db.collection('volunteers').orderBy('name', 'asc').get();
-  return snapshot.docs.map((doc: any) => {
-    const data = doc.data();
-    return { 
-      id: doc.id, 
-      name: data.name, 
-      faculty: data.faculty,
-      batch: data.batch 
-    };
-  });
+  console.time('getPublicVolunteers');
+  try {
+    const snapshot = await db.collection('volunteers')
+      .orderBy('name', 'asc')
+      .select('name', 'faculty', 'batch')
+      .get();
+    return snapshot.docs.map((doc: any) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        name: data.name,
+        faculty: data.faculty,
+        batch: data.batch
+      };
+    });
+  } finally {
+    console.timeEnd('getPublicVolunteers');
+  }
 }
 
 export async function getTimeSlots(): Promise<string[]> {
+  console.time('getTimeSlots');
   try {
     const doc = await db.collection('systemSettings').doc('timeSlots').get();
     if (doc.exists) {
@@ -121,8 +164,24 @@ export async function getTimeSlots(): Promise<string[]> {
     }
   } catch {
     // fall through to default
+  } finally {
+    console.timeEnd('getTimeSlots');
   }
   return DEFAULT_TIME_SLOTS;
+}
+
+export async function getPublicHomeSettings() {
+  const timer = 'getPublicHomeSettings';
+  console.time(timer);
+  try {
+    // Settings are stored with their key as the document ID, so direct reads
+    // avoid the previous collection query and return only the value field.
+    const keys = ['callForVolunteers', 'volunteerCallTopic', 'volunteerCallMessage', 'callForPerformance'] as const;
+    const docs = await db.getAll(...keys.map((key) => db.collection('systemSettings').doc(key)));
+    return Object.fromEntries(docs.map((doc: any, index: number) => [keys[index], doc.data()?.value || ''])) as Record<typeof keys[number], string>;
+  } finally {
+    console.timeEnd(timer);
+  }
 }
 
 export async function getBookingsByPhone(phone: string) {

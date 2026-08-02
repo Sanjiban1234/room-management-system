@@ -24,12 +24,14 @@ export async function createVolunteer(data: { name: string, faculty: string, bat
   await ensureAdmin();
   const newRef = db.collection('volunteers').doc();
   await newRef.set({ ...data, createdAt: new Date().toISOString() });
+  revalidatePath('/');
   revalidatePath('/admin/volunteers');
 }
 
 export async function deleteVolunteer(id: string) {
   await ensureAdmin();
   await db.collection('volunteers').doc(id).delete();
+  revalidatePath('/');
   revalidatePath('/admin/volunteers');
 }
 
@@ -41,6 +43,7 @@ export async function importVolunteersBulk(volunteers: { name: string, faculty: 
     batch.set(ref, { ...vol, createdAt: new Date().toISOString() });
   }
   await batch.commit();
+  revalidatePath('/');
   revalidatePath('/admin/volunteers');
 }
 
@@ -260,8 +263,13 @@ export async function getBlockedDates() {
 
 export async function getBlockedDatesSimple() {
   // Publicly accessible for the booking calendar
-  const snapshot = await db.collection('blockedDates').get();
-  return snapshot.docs.map((doc: any) => doc.data().date);
+  console.time('getBlockedDatesSimple');
+  try {
+    const snapshot = await db.collection('blockedDates').select('date').get();
+    return snapshot.docs.map((doc: any) => doc.data().date);
+  } finally {
+    console.timeEnd('getBlockedDatesSimple');
+  }
 }
 
 export async function addBlockedDate(date: string, reason: string | null) {

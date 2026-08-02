@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Calendar } from '@/components/ui/Calendar';
-import { createBooking } from '@/app/actions/client';
-import { bookingSchema, type BookingData, PHONE_REGEX } from '@/lib/schemas';
+import { createBooking, getBookingsByDate } from '@/app/actions/client';
+import { bookingSchema } from '@/lib/schemas';
 import { hasBookingPassed, formatLocalDate, parseLocalDate } from '@/lib/utils';
 
 interface FieldWarnings {
@@ -14,12 +14,10 @@ interface FieldWarnings {
 
 export default function BookingForm({ 
   volunteers, 
-  initialBookings,
   blockedDates = [],
   timeSlots = ['2:30-3:30', '3:30-4:30', '4:30-5:30'],
 }: { 
   volunteers: any[], 
-  initialBookings: any[],
   blockedDates?: string[],
   timeSlots?: string[],
 }) {
@@ -33,9 +31,37 @@ export default function BookingForm({
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedVolunteer, setSelectedVolunteer] = useState('');
   const [selectedTimeSlot, setSelectedTimeSlot] = useState('');
+  const [bookingsByDate, setBookingsByDate] = useState<Record<string, any[]>>({});
+  const [availabilityLoading, setAvailabilityLoading] = useState(false);
 
   const batches = Array.from(new Set(volunteers.map(v => v.batch).filter(b => b !== ''))).sort();
   const filteredVolunteers = volunteers.filter(v => !selectedBatch || v.batch === selectedBatch);
+  const bookingsForSelectedDate = bookingsByDate[selectedDate] || [];
+
+  useEffect(() => {
+    if (!selectedDate) return;
+
+    setSelectedTimeSlot('');
+    if (bookingsByDate[selectedDate]) return;
+
+    let cancelled = false;
+    setAvailabilityLoading(true);
+
+    getBookingsByDate(selectedDate).then((response) => {
+      if (cancelled) return;
+      if (response.success) {
+        setBookingsByDate((current) => ({ ...current, [selectedDate]: response.bookings }));
+      } else {
+        setError(response.error || 'Could not load availability. Please try again.');
+      }
+    }).catch(() => {
+      if (!cancelled) setError('Could not load availability. Please try again.');
+    }).finally(() => {
+      if (!cancelled) setAvailabilityLoading(false);
+    });
+
+    return () => { cancelled = true; };
+  }, [selectedDate, bookingsByDate]);
 
   // Helper: Filter phone input to only allow valid phone characters
   const filterPhoneInput = (value: string): string => {
@@ -55,9 +81,8 @@ export default function BookingForm({
   };
 
   const isSlotBooked = (slot: string) => {
-    return initialBookings.some(b => 
-      b.date === selectedDate && 
-      b.timeSlot === slot && 
+    return bookingsForSelectedDate.some(b =>
+      b.timeSlot === slot &&
       b.volunteerId === selectedVolunteer &&
       b.status !== 'cancelled'
     );
@@ -272,7 +297,10 @@ export default function BookingForm({
         <div className="flex justify-center">
           <Calendar 
             selectedDate={selectedDate} 
-            onSelect={setSelectedDate} 
+            onSelect={(date) => {
+              setError(null);
+              setSelectedDate(date);
+            }}
             minDate={formatLocalDate(new Date())} 
             blockedDates={blockedDates}
           />
@@ -304,7 +332,8 @@ export default function BookingForm({
         <div className="flex-col gap-3 animate-fade-in" style={{ marginTop: '0.5rem' }}>
           <label className="text-sm font-bold" style={{ color: 'var(--text-main)' }} id="time-slots-label">Available Time Slots</label>
           <div className="flex gap-3 flex-wrap" role="radiogroup" aria-labelledby="time-slots-label">
-            {timeSlots.map(slot => {
+            {availabilityLoading && <p className="text-sm text-muted">Checking availability…</p>}
+            {!availabilityLoading && timeSlots.map(slot => {
               const booked = isSlotBooked(slot);
               const passed = hasBookingPassed(selectedDate, slot);
               const disabled = booked || passed;
