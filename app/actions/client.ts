@@ -39,24 +39,21 @@ export async function createBooking(data: BookingData) {
       return { success: false, error: "This date has been blocked by an administrator." };
     }
 
-    // 4. Server-side Availability Check (Prevent race conditions)
-    // Run an atomic transaction for bookings to prevent race conditions
+    // 4. Prevent overlapping bookings for the same date and time.
+    // A transaction keeps this check safe when two clients submit at once.
     const bookingRef = db.collection('bookings').doc();
     const isSuccess = await db.runTransaction(async (transaction: any) => {
       const existingQuery = await transaction.get(
         db.collection('bookings')
           .where('date', '==', data.date)
           .where('timeSlot', '==', data.timeSlot)
-          .where('volunteerId', '==', data.volunteerId)
       );
 
-      // Filter in-code: a slot is blocked only if an active (non-cancelled) booking exists
-      // This also handles old bookings that pre-date the status field (treated as active)
       const hasActiveBooking = !existingQuery.empty &&
         existingQuery.docs.some((doc: any) => (doc.data().status || 'active') !== 'cancelled');
 
       if (hasActiveBooking) {
-        return false; // Already booked
+        return false;
       }
 
       transaction.set(bookingRef, {
@@ -68,7 +65,7 @@ export async function createBooking(data: BookingData) {
     });
 
     if (!isSuccess) {
-      return { success: false, error: "This slot has already been taken. Please choose another one." };
+      return { success: false, error: 'This slot has already been taken. Please choose another one.' };
     }
 
     return { success: true, bookingId: bookingRef.id };

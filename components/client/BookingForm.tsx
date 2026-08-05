@@ -62,7 +62,6 @@ export default function BookingForm({
 
     return () => { cancelled = true; };
   }, [selectedDate, bookingsByDate]);
-
   // Helper: Filter phone input to only allow valid phone characters
   const filterPhoneInput = (value: string): string => {
     return value.replace(/[^0-9+\-()\s]/g, '');
@@ -83,7 +82,6 @@ export default function BookingForm({
   const isSlotBooked = (slot: string) => {
     return bookingsForSelectedDate.some(b =>
       b.timeSlot === slot &&
-      b.volunteerId === selectedVolunteer &&
       b.status !== 'cancelled'
     );
   };
