@@ -35,8 +35,8 @@ export default function PerformanceRegistrationButton({ isRegistrationOpen, clos
           role="dialog"
           aria-modal="true"
           aria-labelledby="performance-closed-title"
-          className="flex items-center justify-center"
-          style={{ position: 'fixed', inset: 0, zIndex: 50, padding: '1rem', background: 'rgba(0, 0, 0, 0.65)' }}
+          className="flex justify-center"
+          style={{ position: 'fixed', inset: 0, zIndex: 50, alignItems: 'flex-start', padding: '4rem 1rem 1rem', background: 'rgba(0, 0, 0, 0.65)' }}
           onClick={() => setIsDialogOpen(false)}
         >
           <div

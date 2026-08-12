@@ -127,6 +127,36 @@ export default function SettingsClient({
 
   return (
     <div className="flex-col gap-8">
+      {/* Call for Performance Toggle */}
+      <div className="flex-col gap-4 bg-opacity-20 bg-black" style={{ padding: '1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+        <div className="responsive-header">
+          <div>
+            <h3 className="text-lg font-bold">Call for Performance</h3>
+            <p className="text-sm text-muted">The registration button remains visible when turned off and shows the closed message below.</p>
+          </div>
+          <Button 
+            onClick={handlePerformanceToggle} 
+            variant={performanceEnabled ? 'secondary' : 'primary'}
+            disabled={isPending}
+            className="w-full sm:w-auto"
+          >
+            {performanceEnabled ? 'Turn Off' : 'Turn On'}
+          </Button>
+        </div>
+
+        <div className="flex-col gap-2">
+          <label className="text-sm font-medium">Performance Registration Closed Message</label>
+          <textarea
+            className="input w-full"
+            style={{ minHeight: '100px', paddingTop: '0.5rem' }}
+            value={performanceClosedMessage}
+            onChange={(e) => setPerformanceClosedMessage(e.target.value)}
+            placeholder="Performance registration is currently closed."
+          />
+          <p className="text-xs text-muted">Shown in a pop-up when visitors click the performance registration button while registration is off.</p>
+        </div>
+      </div>
+
       {/* Call for Volunteers Toggle */}
       <div className="responsive-header bg-opacity-20 bg-black" style={{ padding: '1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
         <div>
@@ -141,34 +171,6 @@ export default function SettingsClient({
         >
           {enabled ? 'Turn Off' : 'Turn On'}
         </Button>
-      </div>
-
-      {/* Call for Performance Toggle */}
-      <div className="responsive-header bg-opacity-20 bg-black" style={{ padding: '1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', marginTop: '1rem' }}>
-        <div>
-          <h3 className="text-lg font-bold">Call for Performance</h3>
-          <p className="text-sm text-muted">The registration button remains visible when turned off and shows the closed message below.</p>
-        </div>
-        <Button 
-          onClick={handlePerformanceToggle} 
-          variant={performanceEnabled ? 'secondary' : 'primary'}
-          disabled={isPending}
-          className="w-full sm:w-auto"
-        >
-          {performanceEnabled ? 'Turn Off' : 'Turn On'}
-        </Button>
-      </div>
-
-      <div className="flex-col gap-2" style={{ marginTop: '1rem' }}>
-        <label className="text-sm font-medium">Performance Registration Closed Message</label>
-        <textarea
-          className="input w-full"
-          style={{ minHeight: '100px', paddingTop: '0.5rem' }}
-          value={performanceClosedMessage}
-          onChange={(e) => setPerformanceClosedMessage(e.target.value)}
-          placeholder="Performance registration is currently closed."
-        />
-        <p className="text-xs text-muted">Shown in a pop-up when visitors click the performance registration button while registration is off.</p>
       </div>
 
       {/* Volunteer Call Details */}
