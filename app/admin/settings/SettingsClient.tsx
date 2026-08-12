@@ -9,6 +9,7 @@ export default function SettingsClient({
   initialPerformanceEnabled,
   initialTopic,
   initialMessage,
+  initialPerformanceClosedMessage,
   initialTimeSlots,
   initialCoordinators,
 }: { 
@@ -16,6 +17,7 @@ export default function SettingsClient({
   initialPerformanceEnabled: boolean;
   initialTopic: string;
   initialMessage: string;
+  initialPerformanceClosedMessage: string;
   initialTimeSlots: string[];
   initialCoordinators: Record<string, { name: string, phone: string }>;
 }) {
@@ -24,6 +26,7 @@ export default function SettingsClient({
   const [performanceEnabled, setPerformanceEnabled] = useState(initialPerformanceEnabled);
   const [topic, setTopic] = useState(initialTopic);
   const [message, setMessage] = useState(initialMessage);
+  const [performanceClosedMessage, setPerformanceClosedMessage] = useState(initialPerformanceClosedMessage);
   const [isSaving, setIsSaving] = useState(false);
 
   const [coordinators, setCoordinators] = useState<Record<string, { name: string, phone: string }>>(() => {
@@ -84,6 +87,7 @@ export default function SettingsClient({
     setIsSaving(true);
     await updateSystemSetting('volunteerCallTopic', topic);
     await updateSystemSetting('volunteerCallMessage', message);
+    await updateSystemSetting('performanceRegistrationClosedMessage', performanceClosedMessage);
     setIsSaving(false);
     alert('Settings saved successfully!');
   };
@@ -143,7 +147,7 @@ export default function SettingsClient({
       <div className="responsive-header bg-opacity-20 bg-black" style={{ padding: '1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', marginTop: '1rem' }}>
         <div>
           <h3 className="text-lg font-bold">Call for Performance</h3>
-          <p className="text-sm text-muted">When turned on, a button for performance registration is available on the client portal.</p>
+          <p className="text-sm text-muted">The registration button remains visible when turned off and shows the closed message below.</p>
         </div>
         <Button 
           onClick={handlePerformanceToggle} 
@@ -153,6 +157,18 @@ export default function SettingsClient({
         >
           {performanceEnabled ? 'Turn Off' : 'Turn On'}
         </Button>
+      </div>
+
+      <div className="flex-col gap-2" style={{ marginTop: '1rem' }}>
+        <label className="text-sm font-medium">Performance Registration Closed Message</label>
+        <textarea
+          className="input w-full"
+          style={{ minHeight: '100px', paddingTop: '0.5rem' }}
+          value={performanceClosedMessage}
+          onChange={(e) => setPerformanceClosedMessage(e.target.value)}
+          placeholder="Performance registration is currently closed."
+        />
+        <p className="text-xs text-muted">Shown in a pop-up when visitors click the performance registration button while registration is off.</p>
       </div>
 
       {/* Volunteer Call Details */}

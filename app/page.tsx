@@ -1,8 +1,8 @@
-import Link from 'next/link';
 import Image from 'next/image';
 import BookingForm from '@/components/client/BookingForm';
 import ApplicationForm from '@/components/client/ApplicationForm';
 import BookingLookup from '@/components/client/BookingLookup';
+import PerformanceRegistrationButton from '@/components/client/PerformanceRegistrationButton';
 import { getBlockedDatesSimple } from '@/app/actions/admin';
 import { getPublicHomeSettings, getPublicVolunteers, getTimeSlots } from '@/app/actions/client';
 
@@ -23,6 +23,7 @@ export default async function Home() {
 
   const isCallForVolunteers = settings.callForVolunteers === 'true';
   const isCallForPerformance = settings.callForPerformance === 'true';
+  const performanceClosedMessage = settings.performanceRegistrationClosedMessage || 'Performance registration is currently closed.';
   const volunteerTopic = settings.volunteerCallTopic || 'Volunteer Registration';
   const volunteerMessage = settings.volunteerCallMessage || 'We are looking for passionate individuals to join our team. Apply below.';
 
@@ -54,7 +55,10 @@ export default async function Home() {
             <div className="flex gap-4 flex-wrap">
               <a href="#booking" className="btn btn-primary" style={{ padding: '0.75rem 1.5rem', flex: '1 1 auto' }}>Book Now</a>
               {isCallForVolunteers && <a href="#join-us" className="btn btn-secondary" style={{ padding: '0.75rem 1.5rem', flex: '1 1 auto' }}>{volunteerTopic}</a>}
-              {isCallForPerformance && <Link href="/performance-registration" className="btn btn-primary" style={{ padding: '0.75rem 1.5rem', flex: '1 1 auto', background: 'var(--accent-color)' }}>Register for Performance</Link>}
+              <PerformanceRegistrationButton
+                isRegistrationOpen={isCallForPerformance}
+                closedMessage={performanceClosedMessage}
+              />
               <a href="#my-booking" className="btn btn-secondary" style={{ padding: '0.75rem 1.5rem', flex: '1 1 auto' }}>My Booking</a>
             </div>
           </div>

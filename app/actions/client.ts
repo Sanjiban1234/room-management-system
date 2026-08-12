@@ -173,7 +173,7 @@ export async function getPublicHomeSettings() {
   try {
     // Settings are stored with their key as the document ID, so direct reads
     // avoid the previous collection query and return only the value field.
-    const keys = ['callForVolunteers', 'volunteerCallTopic', 'volunteerCallMessage', 'callForPerformance'] as const;
+    const keys = ['callForVolunteers', 'volunteerCallTopic', 'volunteerCallMessage', 'callForPerformance', 'performanceRegistrationClosedMessage'] as const;
     const docs = await db.getAll(...keys.map((key) => db.collection('systemSettings').doc(key)));
     return Object.fromEntries(docs.map((doc: any, index: number) => [keys[index], doc.data()?.value || ''])) as Record<typeof keys[number], string>;
   } finally {
@@ -327,6 +327,12 @@ export async function createVolunteerApplication(data: any) {
 
 export async function createPerformanceRegistration(data: any) {
   try {
+    const performanceSetting = await db.collection('systemSettings').doc('callForPerformance').get();
+    if (performanceSetting.data()?.value !== 'true') {
+      const messageSetting = await db.collection('systemSettings').doc('performanceRegistrationClosedMessage').get();
+      return { success: false, error: messageSetting.data()?.value || 'Performance registration is currently closed.' };
+    }
+
     const ip = await getClientIp();
     const rateLimit = await checkRateLimit('create_performance_registration', ip, 3, 30 * 60 * 1000);
     if (!rateLimit.allowed) {

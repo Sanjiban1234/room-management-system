@@ -10,6 +10,10 @@ export const metadata = {
 };
 
 export default async function PerformanceRegistrationPage() {
+  const performanceSetting = await db.collection('systemSettings').doc('callForPerformance').get();
+  const isRegistrationOpen = performanceSetting.data()?.value === 'true';
+  const closedMessageSetting = await db.collection('systemSettings').doc('performanceRegistrationClosedMessage').get();
+  const closedMessage = closedMessageSetting.data()?.value || 'Performance registration is currently closed.';
   const doc = await db.collection('systemSettings').doc('performanceCoordinators').get();
   const coordinatorsRaw = doc.exists ? doc.data()?.value : '{}';
   let coordinators = {};
@@ -36,7 +40,11 @@ export default async function PerformanceRegistrationPage() {
             <p className="text-muted">Fill out the form below to register your performance.</p>
           </div>
           
-          <PerformanceForm coordinators={coordinators} />
+          {isRegistrationOpen ? (
+            <PerformanceForm coordinators={coordinators} />
+          ) : (
+            <p className="text-muted">{closedMessage}</p>
+          )}
         </div>
       </main>
 
